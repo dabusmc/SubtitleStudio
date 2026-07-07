@@ -1,16 +1,19 @@
 #include <filesystem>
 #include <iostream>
 
-#include <QApplication>
-
+#include "app/Application.h"
 #include "ui/MainWindow.h"
 #include "subtitle/SRTParser.h"
+
+#include <QApplication>
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    SubtitleStudio::MainWindow window;
+    SubtitleStudio::Application studioApp;
+
+    SubtitleStudio::MainWindow window(studioApp);
     window.show();
 
     return app.exec();

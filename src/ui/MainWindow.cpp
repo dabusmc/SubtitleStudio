@@ -2,14 +2,16 @@
 
 #include <QMenuBar>
 #include <QVBoxLayout>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace SubtitleStudio
 {
-    MainWindow::MainWindow(QWidget* parent)
-        : QMainWindow(parent)
+    MainWindow::MainWindow(Application& studioApp, QWidget* parent)
+        : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.0.2");
+        setWindowTitle("Subtitle Studio 0.0.3");
 
         CreateMenus();
         CreateCentralWidget();
@@ -27,9 +29,7 @@ namespace SubtitleStudio
         fileMenu->addAction(m_OpenVideo);
         
         m_OpenSubtitle = new QAction("Open Subtitle...", this);
-        connect(m_OpenSubtitle, &QAction::triggered, this, []() {
-                qDebug() << "Open Subtitle Clicked";
-            });
+        connect(m_OpenSubtitle, &QAction::triggered, this, &MainWindow::OpenSubtitle);
         fileMenu->addAction(m_OpenSubtitle);
         
         fileMenu->addSeparator();
@@ -74,5 +74,33 @@ namespace SubtitleStudio
         layout->addWidget(m_TimelineWidget);
 
         setCentralWidget(centralWidget);
+    }
+
+    void MainWindow::OpenSubtitle()
+    {
+        QString filename = QFileDialog::getOpenFileName(
+            this,
+            "Open Subtitle",
+            QString(),
+            "SubRip (*.srt);;All Files (*)"
+        );
+
+        // User pressed Cancel.
+        if (filename.isEmpty())
+        {
+            return;
+        }
+
+        try
+        {
+            m_StudioApp.OpenSubtitle(filename.toStdString());
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox::critical(
+                this,
+                "Failed to Open Subtitle",
+                e.what());
+        }
     }
 }
