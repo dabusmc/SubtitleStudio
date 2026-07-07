@@ -12,6 +12,12 @@ qt_standard_project_setup()
 qt_add_executable(SubtitleStudio
     src/Main.cpp
 
+    src/util/Timecode.cpp
+
+    src/subtitle/Subtitle.cpp
+    src/subtitle/SubtitleTrack.cpp
+    src/subtitle/SRTParser.cpp
+
     src/ui/MainWindow.cpp
 
     src/ui/widgets/PlaybackControlsWidget.cpp

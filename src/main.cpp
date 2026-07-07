@@ -1,6 +1,10 @@
+#include <filesystem>
+#include <iostream>
+
 #include <QApplication>
 
 #include "ui/MainWindow.h"
+#include "subtitle/SRTParser.h"
 
 int main(int argc, char* argv[])
 {
