@@ -12,12 +12,19 @@ qt_standard_project_setup()
 qt_add_executable(SubtitleStudio
     src/Main.cpp
 
-    src/app/MainWindow.cpp
-    src/app/MainWindow.h
+    src/ui/MainWindow.cpp
+
+    src/ui/widgets/PlaybackControlsWidget.cpp
+    src/ui/widgets/TimelineWidget.cpp
+    src/ui/widgets/VideoWidget.cpp
 )
 
 target_link_libraries(SubtitleStudio PRIVATE
     Qt6::Widgets
+)
+
+target_include_directories(SubtitleStudio PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 find_program(WINDEPLOYQT_EXECUTABLE

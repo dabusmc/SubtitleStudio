@@ -1,12 +1,12 @@
 #include <QApplication>
 
-#include "app/MainWindow.h"
+#include "ui/MainWindow.h"
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow window;
+    SubtitleStudio::MainWindow window;
     window.show();
 
     return app.exec();
