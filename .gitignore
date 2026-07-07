@@ -1,0 +1,35 @@
+# Build
+build/
+out/
+
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+*.VC.db-shm
+*.VC.db-wal
+
+# CMake
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# Ninja
+.ninja_*
+build.ninja
+
+# Qt Creator
+*.pro.user
+*.user
+
+# Qt deployment
+*.ilk
+*.pdb
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
