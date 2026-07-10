@@ -1,7 +1,9 @@
 #pragma once
 
+#include "app/Application.h"
+
 #include <QWidget>
-#include <QVideoWidget>
+#include <QImage>
 
 namespace SubtitleStudio
 {
@@ -12,9 +14,20 @@ namespace SubtitleStudio
 	public:
 		explicit VideoWidget(QWidget* parent = nullptr);
 
-		QVideoWidget* GetVideoWidget() const;
+		void SetApplication(Application* app);
+
+	protected:
+		void paintEvent(QPaintEvent*) override;
 
 	private:
-		QVideoWidget* m_VideoWidget;
+		void DrawFrame(QPainter&);
+		void DrawSubtitle(QPainter&);
+
+	private slots:
+		void OnVideoFrameChanged(const QImage&);
+
+	private:
+		Application* m_StudioApp = nullptr;
+		QImage m_CurrentFrame;
 	};
 }

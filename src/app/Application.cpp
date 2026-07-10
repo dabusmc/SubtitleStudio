@@ -1,3 +1,21 @@
+/*
+
+TODO List (No Particular Order)
+-------------------------------
+# SRT Saving
+# Changing the Start/End of a subtitle with drag boxes
+# Creating New Subtitles
+# Allowing users to open a subtitle + video at the same time
+# Saving the last opened folder when selecting a subtitle or video
+# Allowing users to drag + drop subtitles and video files
+# Make the spacebar pause/play
+# Make the left/right arrow keys rewind and fast-forward
+# Customisation options for Subtitles display
+# Comments/Code Cleanup
+# License Comments at the top of Source Files
+
+*/
+
 #include "Application.h"
 
 #include "subtitle/SRTParser.h"
@@ -107,6 +125,19 @@ namespace SubtitleStudio
 		}
 	}
 
+	Subtitle* Application::CurrentSubtitle()
+	{
+		auto& subtitles = m_Session.Track.Subtitles;
+		auto index = CurrentSubtitleIndex();
+
+		if (index >= 0 && index < static_cast<int>(subtitles.size()))
+		{
+			return &subtitles[index];
+		}
+
+		return nullptr;
+	}
+
 	int Application::CurrentSubtitleIndex() const
 	{
 		return SubtitleIndexAt(m_Session.Playback.Position);
@@ -152,8 +183,7 @@ namespace SubtitleStudio
 		{
 			const auto& subtitle = subtitles[i];
 
-			if (subtitle.Start <= position &&
-				position < subtitle.End)
+			if (subtitle.Start <= position && position < subtitle.End)
 			{
 				return i;
 			}

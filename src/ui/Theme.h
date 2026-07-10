@@ -19,6 +19,19 @@ namespace SubtitleStudio
 
     namespace Theme
     {
+        namespace Subtitle
+        {
+            constexpr int FontSize = 18;
+
+            inline const QColor Fill(Qt::white);
+            inline const QColor Outline(Qt::black);
+
+            constexpr int HorizontalMargin = 80;
+            constexpr int BottomMargin = 60;
+
+            constexpr int OutlineThickness = 2;
+        }
+
         namespace Colours
         {
             inline const QColor Background(40, 40, 40);

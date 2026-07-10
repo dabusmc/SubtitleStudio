@@ -27,6 +27,8 @@ namespace SubtitleStudio
 		void PreviousSubtitleBoundary();
 		void NextSubtitleBoundary();
 
+		Subtitle* CurrentSubtitle();
+
 	private:
 		int CurrentSubtitleIndex() const;
 		int PreviousSubtitleIndex() const;

@@ -9,9 +9,13 @@ namespace SubtitleStudio
 		m_AudioOutput = new QAudioOutput(this);
 		m_MediaPlayer->setAudioOutput(m_AudioOutput);
 
+		m_VideoSink = new QVideoSink(this);
+		m_MediaPlayer->setVideoSink(m_VideoSink);
+
 		connect(m_MediaPlayer, &QMediaPlayer::mediaStatusChanged, this, &VideoPlayer::OnMediaStatusChanged);
 		connect(m_MediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::OnPositionChanged);
 		connect(m_MediaPlayer, &QMediaPlayer::playingChanged, this, &VideoPlayer::OnPlayingStateChanged);
+		connect(m_VideoSink, &QVideoSink::videoFrameChanged, this, &VideoPlayer::OnVideoFrameChanged);
 	}
 
 	void VideoPlayer::Load(const std::string& file)
@@ -42,11 +46,6 @@ namespace SubtitleStudio
 		m_MediaPlayer->setPosition(static_cast<qint64>(position.count()));
 	}
 
-	void VideoPlayer::SetVideoOutput(QVideoWidget* videoWidget)
-	{
-		m_MediaPlayer->setVideoOutput(videoWidget);
-	}
-
 	void VideoPlayer::OnMediaStatusChanged(QMediaPlayer::MediaStatus status)
 	{
 		if (status == QMediaPlayer::MediaStatus::LoadedMedia)
@@ -63,5 +62,18 @@ namespace SubtitleStudio
 	void VideoPlayer::OnPlayingStateChanged(bool playing)
 	{
 		emit PlayingStateChanged(playing);
+	}
+
+	void VideoPlayer::OnVideoFrameChanged(const QVideoFrame& frame)
+	{
+		if (!frame.isValid())
+			return;
+
+		QImage image = frame.toImage();
+
+		if (image.isNull())
+			return;
+
+		emit VideoFrameChanged(image);
 	}
 }
