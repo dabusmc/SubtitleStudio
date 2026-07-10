@@ -5,14 +5,46 @@ TODO List (No Particular Order)
 # SRT Saving
 # Changing the Start/End of a subtitle with drag boxes
 # Creating New Subtitles
+# Multi-selection
+	# Ctrl + Click
+	# Shift + Click
+	# Select All
+# Moving subtitles by dragging
+	# Snap subtitle edges to neighbouring subtitles
+# Deleting Subtitles
+# Splitting a subtitle
+	# Merging subtitles
+# Prevent invalid subtitles
+	# End >= Start
+	# Prevent negative timestamps
+# Undo/Redo Functionality
 # Allowing users to open a subtitle + video at the same time
 # Saving the last opened folder when selecting a subtitle or video
 # Allowing users to drag + drop subtitles and video files
-# Make the spacebar pause/play
-# Make the left/right arrow keys rewind and fast-forward
+# Give the keyboard functionality
+	# Make the spacebar pause/play
+	# Make the left/right arrow keys rewind and fast-forward
+	# Make shift + left/right arrow keys go to previous and next subtitle
 # Customisation options for Subtitles display
 # Comments/Code Cleanup
 # License Comments at the top of Source Files
+# Closing Videos and Subtitles individually
+	# Allowing videos to be closed mid-play
+# Timeline Movement
+	# Timeline zoom with Ctrl + mouse wheel
+	# Timeline horizontal scrolling with mouse wheel
+	# Auto-scroll toggle (follow playback)
+# Better timeline subtitle visuals
+# Recent files
+# Auto Save
+# Prompt before closing unsaved work
+# "Modified" indicator in title bar
+# Application icon
+
+# Handling other subtitle formats (maybe)
+	# Export to other formats
+# Multiple subtitle tracks (maybe)
+# Light/Dark themes (maybe)
 
 */
 
