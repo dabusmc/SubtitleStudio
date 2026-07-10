@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.0.4");
+        setWindowTitle("Subtitle Studio 0.0.5");
 
         CreateMenus();
         CreateCentralWidget();
@@ -23,9 +23,7 @@ namespace SubtitleStudio
         
         // Open Video
         m_OpenVideo = new QAction("Open Video...", this);
-        connect(m_OpenVideo, &QAction::triggered, this, []() {
-                qDebug() << "Open Video Clicked";
-            });
+        connect(m_OpenVideo, &QAction::triggered, this, &MainWindow::OpenVideo);
         fileMenu->addAction(m_OpenVideo);
         
         // Open Subtitle
@@ -72,6 +70,7 @@ namespace SubtitleStudio
         layout->setSpacing(0);
 
         m_VideoWidget = new VideoWidget(centralWidget);
+        m_StudioApp.GetVideoPlayer().SetVideoOutput(m_VideoWidget->GetVideoWidget());
 
         m_PlaybackControls = new PlaybackControlsWidget(centralWidget);
 
@@ -105,6 +104,26 @@ namespace SubtitleStudio
         catch (const std::exception& e)
         {
             QMessageBox::critical(this, "Failed to Open Subtitle", e.what());
+        }
+    }
+
+    void MainWindow::OpenVideo()
+    {
+        QString filename = QFileDialog::getOpenFileName(this, "Open Video", QString(),
+            "Video Files (*.mp4 *.mkv *.avi *.mov *.wmv *.webm *.m4v);;All Files (*)");
+
+        if (filename.isEmpty())
+        {
+            return;
+        }
+
+        try
+        {
+            m_StudioApp.OpenVideo(filename.toStdString());
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox::critical(this, "Failed to Open Video", e.what());
         }
     }
 }

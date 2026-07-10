@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QVideoWidget>
 
 namespace SubtitleStudio
 {
@@ -11,7 +12,9 @@ namespace SubtitleStudio
 	public:
 		explicit VideoWidget(QWidget* parent = nullptr);
 
-	protected:
-		void paintEvent(QPaintEvent* event) override;
+		QVideoWidget* GetVideoWidget() const;
+
+	private:
+		QVideoWidget* m_VideoWidget;
 	};
 }

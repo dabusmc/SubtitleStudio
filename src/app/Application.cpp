@@ -5,19 +5,22 @@
 namespace SubtitleStudio
 {
 	Application::Application(QObject* parent)
-		: QObject(parent), m_Session()
+		: QObject(parent), m_Session(), m_Player(this)
 	{
-	}
-
-	Session& Application::GetSession()
-	{
-		return m_Session;
 	}
 
 	void Application::OpenSubtitle(const std::string& path)
 	{
 		m_Session.Track = SRT::Load(path);
 		m_Session.SubtitlePath = path;
+
+		emit SessionChanged();
+	}
+
+	void Application::OpenVideo(const std::string& path)
+	{
+		m_Session.VideoPath = path;
+		m_Player.Load(path);
 
 		emit SessionChanged();
 	}

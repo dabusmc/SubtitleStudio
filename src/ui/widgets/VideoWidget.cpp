@@ -1,20 +1,25 @@
 #include "VideoWidget.h"
 
-#include <QPainter>
+#include <QVBoxLayout>
 
 namespace SubtitleStudio
 {
     VideoWidget::VideoWidget(QWidget* parent)
         : QWidget(parent)
     {
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        auto* layout = new QVBoxLayout(this);
+
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+
+        m_VideoWidget = new QVideoWidget(this);
+        m_VideoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        layout->addWidget(m_VideoWidget);
     }
 
-    void VideoWidget::paintEvent(QPaintEvent*)
+    QVideoWidget* VideoWidget::GetVideoWidget() const
     {
-        QPainter painter(this);
-        painter.fillRect(rect(), QColor(40, 0, 0));
-        painter.setPen(Qt::white);
-        painter.drawText(rect(), Qt::AlignCenter, "Video Display");
+        return m_VideoWidget;
     }
 }

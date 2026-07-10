@@ -36,5 +36,6 @@ namespace SubtitleStudio
 
     private slots:
         void OpenSubtitle();
+        void OpenVideo();
     };
 }
