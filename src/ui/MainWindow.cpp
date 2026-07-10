@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.0.3");
+        setWindowTitle("Subtitle Studio 0.0.4");
 
         CreateMenus();
         CreateCentralWidget();
@@ -68,6 +68,7 @@ namespace SubtitleStudio
         m_VideoWidget = new VideoWidget(centralWidget);
         m_PlaybackControls = new PlaybackControlsWidget(centralWidget);
         m_TimelineWidget = new TimelineWidget(centralWidget);
+        m_TimelineWidget->SetApplication(&m_StudioApp);
 
         layout->addWidget(m_VideoWidget, 1);
         layout->addWidget(m_PlaybackControls);

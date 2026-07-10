@@ -1,7 +1,5 @@
 #include "Application.h"
 
-#include <iostream>
-
 #include "subtitle/SRTParser.h"
 
 namespace SubtitleStudio
@@ -20,8 +18,6 @@ namespace SubtitleStudio
 	{
 		m_Session.Track = SRT::Load(path);
 		m_Session.SubtitlePath = path;
-
-		std::cout << m_Session.Track << std::endl;
 
 		emit SessionChanged();
 	}
