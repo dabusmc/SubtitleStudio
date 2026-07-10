@@ -31,6 +31,10 @@ target_link_libraries(SubtitleStudio PRIVATE
     Qt6::Widgets
 )
 
+if (MSVC)
+    target_compile_options(SubtitleStudio PRIVATE /MP)
+endif()
+
 target_include_directories(SubtitleStudio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

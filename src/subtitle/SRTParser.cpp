@@ -16,8 +16,7 @@ namespace SubtitleStudio
 		// Retrieved 2026-07-07, License - CC BY-SA 4.0
 		bool IsNumber(const std::string& str)
 		{
-			return !str.empty() && std::find_if(str.begin(),
-				str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
+			return !str.empty() && std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 		}
 
 		SubtitleTrack Load(const std::filesystem::path& path)

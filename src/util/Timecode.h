@@ -10,5 +10,7 @@ namespace SubtitleStudio
 	{
 		std::chrono::milliseconds FromSRT(const QString& timeString);
 		QString ToSRT(std::chrono::milliseconds time);
+
+		QString FormatTimeline(std::chrono::milliseconds time);
 	}
 }
