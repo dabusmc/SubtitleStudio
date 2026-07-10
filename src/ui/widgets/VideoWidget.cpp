@@ -15,18 +15,8 @@ namespace SubtitleStudio
     {
         m_StudioApp = app;
 
-        connect(
-            &app->GetVideoPlayer(),
-            &VideoPlayer::VideoFrameChanged,
-            this,
-            &VideoWidget::OnVideoFrameChanged);
-
-        connect(
-            app,
-            &Application::PlaybackPositionChanged,
-            this,
-            [this](std::chrono::milliseconds)
-            {
+        connect(&app->GetVideoPlayer(), &VideoPlayer::VideoFrameChanged, this, &VideoWidget::OnVideoFrameChanged);
+        connect(app, &Application::PlaybackPositionChanged, this, [this](std::chrono::milliseconds){
                 update();
             });
     }
@@ -51,15 +41,9 @@ namespace SubtitleStudio
             return;
 
         QSize imageSize = m_CurrentFrame.size();
-
         imageSize.scale(size(), Qt::KeepAspectRatio);
 
-        QRect target(
-            QPoint(
-                (width() - imageSize.width()) / 2,
-                (height() - imageSize.height()) / 2),
-            imageSize);
-
+        QRect target(QPoint((width() - imageSize.width()) / 2, (height() - imageSize.height()) / 2), imageSize);
         painter.drawImage(target, m_CurrentFrame);
     }
 
