@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.2.1");
+        setWindowTitle("Subtitle Studio 0.2.2");
 
         CreateMenus();
         CreateCentralWidget();
@@ -20,6 +20,7 @@ namespace SubtitleStudio
 
     void MainWindow::CreateMenus()
     {
+        // --- File Menu ---
         QMenu* fileMenu = menuBar()->addMenu("&File");
         
         // Open Video
@@ -60,6 +61,15 @@ namespace SubtitleStudio
                 qDebug() << "Exit Clicked";
             });
         fileMenu->addAction(m_Exit);
+
+        // --- View Menu ---
+        QMenu* viewMenu = menuBar()->addMenu("&View");
+
+        // Toggle Subtitle Properties
+        m_ToggleSubtitleProperties = new QAction("Subtitle Properties Window", this);
+        m_ToggleSubtitleProperties->setCheckable(true);
+        connect(m_ToggleSubtitleProperties, &QAction::triggered, this, &MainWindow::ToggleSubtitleProperties);
+        viewMenu->addAction(m_ToggleSubtitleProperties);
     }
 
     void MainWindow::CreateDockWidgets()
@@ -77,6 +87,7 @@ namespace SubtitleStudio
             });
 
         m_SubtitleDock->hide();
+        m_ToggleSubtitleProperties->setChecked(false);
     }
 
     void MainWindow::CreateCentralWidget()
@@ -147,10 +158,24 @@ namespace SubtitleStudio
         }
     }
 
+    void MainWindow::ToggleSubtitleProperties()
+    {
+        if (m_SubtitleDock->isHidden())
+        {
+            m_SubtitleDock->show();
+            m_SubtitleDock->raise();
+        }
+        else
+        {
+            m_SubtitleDock->hide();
+        }
+    }
+
     void MainWindow::OnSubtitlePropertiesOpen(Subtitle* subtitle)
     {
         m_SubtitleEditor->SetSubtitle(subtitle);
         m_SubtitleDock->show();
         m_SubtitleDock->raise();
+        m_SubtitleDock->activateWindow();
     }
 }

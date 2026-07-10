@@ -39,9 +39,14 @@ namespace SubtitleStudio
         QAction* m_SaveAs = nullptr;
         QAction* m_Exit = nullptr;
 
+        QAction* m_ToggleSubtitleProperties = nullptr;
+
     private slots:
         void OpenSubtitle();
         void OpenVideo();
+
+        void ToggleSubtitleProperties();
+
         void OnSubtitlePropertiesOpen(Subtitle* subtitle);
     };
 }
