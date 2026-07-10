@@ -97,30 +97,27 @@ namespace SubtitleStudio
 
     void PlaybackControlsWidget::OnPlayPausePressed()
     {
-        if (m_StudioApp->GetSession().Playback.Playing)
-        {
-            m_StudioApp->GetVideoPlayer().Pause();
-        }
-        else
-        {
-            m_StudioApp->GetVideoPlayer().Play();
-        }
+        m_StudioApp->PlayPause();
     }
 
     void PlaybackControlsWidget::OnRewindPressed()
     {
+        m_StudioApp->SeekRelative(-std::chrono::seconds(1));
     }
 
     void PlaybackControlsWidget::OnFastForwardPressed()
     {
+        m_StudioApp->SeekRelative(std::chrono::seconds(1));
     }
 
     void PlaybackControlsWidget::OnPreviousSubtitlePressed()
     {
+        m_StudioApp->PreviousSubtitleBoundary();
     }
 
     void PlaybackControlsWidget::OnNextSubtitlePressed()
     {
+        m_StudioApp->NextSubtitleBoundary();
     }
 
     void PlaybackControlsWidget::OnPlayingStateChanged(bool playing)

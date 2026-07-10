@@ -18,8 +18,21 @@ namespace SubtitleStudio
 		VideoPlayer& GetVideoPlayer() { return m_Player; }
 
 		void OpenSubtitle(const std::string& path);
-
 		void OpenVideo(const std::string& path);
+
+		void PlayPause();
+
+		void SeekRelative(std::chrono::milliseconds offset);
+
+		void PreviousSubtitleBoundary();
+		void NextSubtitleBoundary();
+
+	private:
+		int CurrentSubtitleIndex() const;
+		int PreviousSubtitleIndex() const;
+		int NextSubtitleIndex() const;
+
+		int SubtitleIndexAt(std::chrono::milliseconds position) const;
 
 	signals:
 		void SessionChanged();

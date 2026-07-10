@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.3.0");
+        setWindowTitle("Subtitle Studio 0.3.1");
 
         CreateMenus();
         CreateCentralWidget();
