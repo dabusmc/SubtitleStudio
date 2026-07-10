@@ -28,6 +28,15 @@ namespace SubtitleStudio
 
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
+
+    void TimelineWidget::SetApplication(Application* app)
+    {
+        m_StudioApp = app;
+        connect(m_StudioApp, &Application::PlaybackPositionChanged, this, [this](std::chrono::milliseconds)
+            {
+                update();
+            });
+    }
     
     void TimelineWidget::paintEvent(QPaintEvent*)
     {
@@ -55,7 +64,7 @@ namespace SubtitleStudio
             return;
         }
 
-        m_Playhead = std::clamp(XToTime(event->pos().x()), m_Viewport.Start, m_Viewport.Start + m_Viewport.Duration);
+        //m_Playhead = std::clamp(XToTime(event->pos().x()), m_Viewport.Start, m_Viewport.Start + m_Viewport.Duration);
         update();
     }
 
@@ -105,7 +114,8 @@ namespace SubtitleStudio
 
     void TimelineWidget::DrawPlayhead(QPainter& painter)
     {
-        int x = TimeToX(m_Playhead);
+        std::chrono::milliseconds playhead = m_StudioApp->GetSession().Playback.Position;
+        int x = TimeToX(playhead);
 
         QPolygon triangle;
 

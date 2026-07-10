@@ -25,7 +25,7 @@ namespace SubtitleStudio
 	public:
 		explicit TimelineWidget(QWidget* parent = nullptr);
 
-		void SetApplication(Application* app) { m_StudioApp = app; }
+		void SetApplication(Application* app);
 
 	protected:
 		void paintEvent(QPaintEvent* event) override;
@@ -45,6 +45,5 @@ namespace SubtitleStudio
 	private:
 		Application* m_StudioApp;
 		TimelineViewport m_Viewport;
-		std::chrono::milliseconds m_Playhead = std::chrono::milliseconds(0);
 	};
 }

@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include "PlaybackState.h"
 #include "subtitle/SubtitleTrack.h"
 
 namespace SubtitleStudio
@@ -12,5 +13,6 @@ namespace SubtitleStudio
 		std::filesystem::path SubtitlePath;
 
 		SubtitleTrack Track;
+		PlaybackState Playback;
 	};
 }

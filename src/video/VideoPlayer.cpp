@@ -8,6 +8,8 @@ namespace SubtitleStudio
 		m_MediaPlayer = new QMediaPlayer(this);
 		m_AudioOutput = new QAudioOutput(this);
 		m_MediaPlayer->setAudioOutput(m_AudioOutput);
+
+		connect(m_MediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::OnPositionChanged);
 	}
 
 	void VideoPlayer::Load(const std::string& file)
@@ -33,8 +35,18 @@ namespace SubtitleStudio
 		m_MediaPlayer->stop();
 	}
 
+	void VideoPlayer::Seek()
+	{
+
+	}
+
 	void VideoPlayer::SetVideoOutput(QVideoWidget* videoWidget)
 	{
 		m_MediaPlayer->setVideoOutput(videoWidget);
+	}
+
+	void VideoPlayer::OnPositionChanged(qint64 position)
+	{
+		emit PositionChanged(std::chrono::milliseconds(position));
 	}
 }
