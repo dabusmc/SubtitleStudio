@@ -26,10 +26,12 @@ namespace SubtitleStudio
 		void SetVideoOutput(QVideoWidget* videoWidget);
 
 	signals:
+		void VideoLoaded(std::chrono::milliseconds duration);
 		void PositionChanged(std::chrono::milliseconds position);
 		void PlayingStateChanged(bool playing);
 
 	private slots:
+		void OnMediaStatusChanged(QMediaPlayer::MediaStatus status);
 		void OnPositionChanged(qint64 position);
 		void OnPlayingStateChanged(bool playing);
 

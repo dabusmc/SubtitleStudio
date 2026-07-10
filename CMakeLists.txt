@@ -5,10 +5,15 @@ project(SubtitleStudio LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 find_package(Qt6 REQUIRED COMPONENTS
     Widgets
     Multimedia
     MultimediaWidgets
+    Svg
 )
 
 qt_standard_project_setup()
@@ -32,12 +37,15 @@ qt_add_executable(SubtitleStudio
     src/ui/widgets/TimelineWidget.cpp
     src/ui/widgets/VideoWidget.cpp
     src/ui/widgets/SubtitleEditorWidget.cpp
+
+    resources/SubtitleStudio.qrc
 )
 
 target_link_libraries(SubtitleStudio PRIVATE
     Qt6::Widgets
     Qt6::Multimedia
     Qt6::MultimediaWidgets
+    Qt6::Svg
 )
 
 if (MSVC)

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RCC version="1.0">
+    <qresource prefix="/icons">
+        <file alias="play.svg">../assets/icons/play.svg</file>
+        <file alias="pause.svg">../assets/icons/pause.svg</file>
+        <file alias="rewind.svg">../assets/icons/rewind.svg</file>
+        <file alias="fast_forward.svg">../assets/icons/fast_forward.svg</file>
+        <file alias="previous_subtitle.svg">../assets/icons/previous_subtitle.svg</file>
+        <file alias="next_subtitle.svg">../assets/icons/next_subtitle.svg</file>
+    </qresource>
+</RCC>

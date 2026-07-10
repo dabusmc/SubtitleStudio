@@ -27,6 +27,7 @@ namespace SubtitleStudio
 		void PlaybackPositionChanged(std::chrono::milliseconds position);
 
 	private slots:
+		void OnVideoLoaded(std::chrono::milliseconds duration);
 		void OnPositionChanged(std::chrono::milliseconds position);
 		void OnPlayingStateChanged(bool playing);
 

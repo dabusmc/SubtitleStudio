@@ -5,6 +5,18 @@
 
 namespace SubtitleStudio
 {
+    namespace Icons
+    {
+        inline constexpr auto Play = ":/icons/play.svg";
+        inline constexpr auto Pause = ":/icons/pause.svg";
+
+        inline constexpr auto Rewind = ":/icons/rewind.svg";
+        inline constexpr auto FastForward = ":/icons/fast_forward.svg";
+
+        inline constexpr auto PreviousSubtitle = ":/icons/previous_subtitle.svg";
+        inline constexpr auto NextSubtitle = ":/icons/next_subtitle.svg";
+    }
+
     namespace Theme
     {
         namespace Colours
@@ -55,6 +67,41 @@ namespace SubtitleStudio
 
     namespace Styles
     {
+        inline QString ToolButton()
+        {
+            return QString(
+                "QPushButton {"
+                "background-color:%1;"
+                "color:%2;"
+                "border:1px solid %3;"
+                "border-radius:%4px;"
+                "padding:2px;"
+                "}"
+                "QPushButton:hover {"
+                "background-color:%5;"
+                "}"
+                "QPushButton:pressed {"
+                "background-color:%6;"
+                "}")
+                .arg(Theme::ToCss(Theme::Colours::Surface))
+                .arg(Theme::ToCss(Theme::Colours::Text))
+                .arg(Theme::ToCss(Theme::Colours::Border))
+                .arg(Theme::Metrics::BorderRadius)
+                .arg(Theme::ToCss(Theme::Colours::AccentHover))
+                .arg(Theme::ToCss(Theme::Colours::Accent));
+        }
+
+        inline QString TimeLabel()
+        {
+            return QString(
+                "QLabel {"
+                "color:%1;"
+                "font-family:Consolas;"
+                "font-size:10pt;"
+                "}")
+                .arg(Theme::ToCss(Theme::Colours::Text));
+        }
+
         inline QString Card()
         {
             return QString(

@@ -7,6 +7,7 @@ namespace SubtitleStudio
 	Application::Application(QObject* parent)
 		: QObject(parent), m_Session(), m_Player(this)
 	{
+		connect(&m_Player, &VideoPlayer::VideoLoaded, this, &Application::OnVideoLoaded);
 		connect(&m_Player, &VideoPlayer::PositionChanged, this, &Application::OnPositionChanged);
 		connect(&m_Player, &VideoPlayer::PlayingStateChanged, this, &Application::OnPlayingStateChanged);
 	}
@@ -25,6 +26,11 @@ namespace SubtitleStudio
 		m_Player.Load(path);
 
 		emit SessionChanged();
+	}
+
+	void Application::OnVideoLoaded(std::chrono::milliseconds duration)
+	{
+		m_Session.Playback.Duration = duration;
 	}
 
 	constexpr double FollowThreshold = 0.8;
