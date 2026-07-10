@@ -167,15 +167,27 @@ namespace SubtitleStudio
 		m_Session.Playback.Duration = duration;
 	}
 
-	constexpr double FollowThreshold = 0.8;
+	constexpr double SafeLeft = 0.2;
+	constexpr double SafeRight = 1.0 - SafeLeft;
 	void Application::OnPositionChanged(std::chrono::milliseconds position)
 	{
 		m_Session.Playback.Position = position;
 
-		if (m_Session.Playback.Position >= m_Session.Viewport.Start + (m_Session.Viewport.Duration * FollowThreshold))
+		auto leftBoundary = m_Session.Viewport.Start + (m_Session.Viewport.Duration * SafeLeft);
+		auto rightBoundary = m_Session.Viewport.Start + (m_Session.Viewport.Duration * SafeRight);
+
+		if (position > rightBoundary)
 		{
-			m_Session.Viewport.Start += std::chrono::seconds(5);
+			auto viewportOffset = std::chrono::duration_cast<std::chrono::milliseconds>(m_Session.Viewport.Duration * SafeRight);
+			m_Session.Viewport.Start = position - viewportOffset;
 		}
+		else if (position < leftBoundary)
+		{
+			auto viewportOffset = std::chrono::duration_cast<std::chrono::milliseconds>(m_Session.Viewport.Duration * SafeLeft);
+			m_Session.Viewport.Start = position - viewportOffset;
+		}
+
+		m_Session.Viewport.Start = std::max(std::chrono::milliseconds(0), m_Session.Viewport.Start);
 
 		emit PlaybackPositionChanged(m_Session.Playback.Position);
 	}
