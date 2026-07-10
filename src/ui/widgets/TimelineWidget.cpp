@@ -19,10 +19,13 @@ namespace SubtitleStudio
         constexpr int TrackSpacing = 10;
         constexpr int TrackHeight = 30;
         constexpr int TrackTop = TopPadding + RulerHeight + TrackSpacing;
+
+        constexpr QColor NormalSubtitleColour(70, 150, 255);
+        constexpr QColor SelectedSubtitleColour(255, 180, 60);
     }
 
     TimelineWidget::TimelineWidget(QWidget* parent)
-        : QWidget(parent), m_StudioApp(nullptr)
+        : QWidget(parent), m_StudioApp(nullptr), m_SelectedSubtitle(nullptr)
     {
         setMinimumHeight(150);
 
@@ -58,13 +61,14 @@ namespace SubtitleStudio
 
         if (Subtitle* subtitle = SubtitleAt(event->pos()))
         {
-            // TODO: Select or Double Select Subtitle
-
-            qDebug() << "Clicked subtitle:" << subtitle->Text;
+            m_SelectedSubtitle = subtitle;
+            update();
             return;
         }
 
-        //m_Playhead = std::clamp(XToTime(event->pos().x()), m_Viewport.Start, m_Viewport.Start + m_Viewport.Duration);
+        TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
+        auto seekPosition = std::clamp(XToTime(event->pos().x()), viewport.Start, viewport.Start + viewport.Duration);
+        m_StudioApp->GetVideoPlayer().Seek(seekPosition);
         update();
     }
 
@@ -89,7 +93,8 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(QColor(70, 150, 255));
+            painter.setBrush(&subtitle == m_SelectedSubtitle ? SelectedSubtitleColour : NormalSubtitleColour);
+
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, 3, 3);
 

@@ -38,5 +38,6 @@ namespace SubtitleStudio
 
 	private:
 		Application* m_StudioApp;
+		Subtitle* m_SelectedSubtitle;
 	};
 }

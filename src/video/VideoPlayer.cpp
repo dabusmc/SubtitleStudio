@@ -36,9 +36,9 @@ namespace SubtitleStudio
 		m_MediaPlayer->stop();
 	}
 
-	void VideoPlayer::Seek()
+	void VideoPlayer::Seek(std::chrono::milliseconds position)
 	{
-
+		m_MediaPlayer->setPosition(static_cast<qint64>(position.count()));
 	}
 
 	void VideoPlayer::SetVideoOutput(QVideoWidget* videoWidget)

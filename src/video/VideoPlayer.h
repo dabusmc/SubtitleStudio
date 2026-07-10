@@ -21,7 +21,7 @@ namespace SubtitleStudio
 		void Play();
 		void Pause();
 		void Reset();
-		void Seek();
+		void Seek(std::chrono::milliseconds position);
 
 		void SetVideoOutput(QVideoWidget* videoWidget);
 
