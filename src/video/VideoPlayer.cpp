@@ -10,6 +10,7 @@ namespace SubtitleStudio
 		m_MediaPlayer->setAudioOutput(m_AudioOutput);
 
 		connect(m_MediaPlayer, &QMediaPlayer::positionChanged, this, &VideoPlayer::OnPositionChanged);
+		connect(m_MediaPlayer, &QMediaPlayer::playingChanged, this, &VideoPlayer::OnPlayingStateChanged);
 	}
 
 	void VideoPlayer::Load(const std::string& file)
@@ -48,5 +49,10 @@ namespace SubtitleStudio
 	void VideoPlayer::OnPositionChanged(qint64 position)
 	{
 		emit PositionChanged(std::chrono::milliseconds(position));
+	}
+
+	void VideoPlayer::OnPlayingStateChanged(bool playing)
+	{
+		emit PlayingStateChanged(playing);
 	}
 }

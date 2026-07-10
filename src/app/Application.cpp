@@ -8,6 +8,7 @@ namespace SubtitleStudio
 		: QObject(parent), m_Session(), m_Player(this)
 	{
 		connect(&m_Player, &VideoPlayer::PositionChanged, this, &Application::OnPositionChanged);
+		connect(&m_Player, &VideoPlayer::PlayingStateChanged, this, &Application::OnPlayingStateChanged);
 	}
 
 	void Application::OpenSubtitle(const std::string& path)
@@ -37,5 +38,12 @@ namespace SubtitleStudio
 		}
 
 		emit PlaybackPositionChanged(m_Session.Playback.Position);
+	}
+
+	void Application::OnPlayingStateChanged(bool playing)
+	{
+		m_Session.Playback.Playing = playing;
+
+		emit PlayingStateChanged(m_Session.Playback.Playing);
 	}
 }

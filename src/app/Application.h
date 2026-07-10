@@ -23,10 +23,12 @@ namespace SubtitleStudio
 
 	signals:
 		void SessionChanged();
+		void PlayingStateChanged(bool playing);
 		void PlaybackPositionChanged(std::chrono::milliseconds position);
 
 	private slots:
 		void OnPositionChanged(std::chrono::milliseconds position);
+		void OnPlayingStateChanged(bool playing);
 
 	private:
 		Session m_Session;

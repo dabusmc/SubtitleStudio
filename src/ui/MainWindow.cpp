@@ -73,6 +73,7 @@ namespace SubtitleStudio
         m_StudioApp.GetVideoPlayer().SetVideoOutput(m_VideoWidget->GetVideoWidget());
 
         m_PlaybackControls = new PlaybackControlsWidget(centralWidget);
+        m_PlaybackControls->SetApplication(&m_StudioApp);
 
         m_TimelineWidget = new TimelineWidget(centralWidget);
         m_TimelineWidget->SetApplication(&m_StudioApp);

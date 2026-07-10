@@ -27,9 +27,11 @@ namespace SubtitleStudio
 
 	signals:
 		void PositionChanged(std::chrono::milliseconds position);
+		void PlayingStateChanged(bool playing);
 
 	private slots:
 		void OnPositionChanged(qint64 position);
+		void OnPlayingStateChanged(bool playing);
 
 	private:
 		QMediaPlayer* m_MediaPlayer;

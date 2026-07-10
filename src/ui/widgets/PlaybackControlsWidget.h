@@ -1,6 +1,9 @@
 #pragma once
 
+#include "app/Application.h"
+
 #include <QWidget>
+#include <QPushButton>
 
 namespace SubtitleStudio
 {
@@ -11,7 +14,14 @@ namespace SubtitleStudio
 	public:
 		explicit PlaybackControlsWidget(QWidget* parent = nullptr);
 
-	protected:
-		void paintEvent(QPaintEvent* event) override;
+		void SetApplication(Application* app);
+
+	private slots:
+		void OnPlayButtonPressed();
+		void OnPlayingStateChanged(bool playing);
+
+	private:
+		Application* m_StudioApp;
+		QPushButton* m_PlayButton;
 	};
 }
