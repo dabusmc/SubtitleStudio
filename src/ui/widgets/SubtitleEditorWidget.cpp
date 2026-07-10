@@ -43,8 +43,10 @@ namespace SubtitleStudio
 
 		QLabel* startLabel = new QLabel("Start", timingCard);
 		startLabel->setStyleSheet(Styles::Label());
+
 		QLabel* endLabel = new QLabel("End", timingCard);
 		endLabel->setStyleSheet(Styles::Label());
+
 		QLabel* durationLabel = new QLabel("Duration", timingCard);
 		durationLabel->setStyleSheet(Styles::Label());
 
@@ -82,8 +84,10 @@ namespace SubtitleStudio
 
 		QLabel* textLabel = new QLabel("Text", textCard);
 		textLabel->setStyleSheet(Styles::Label());
+
 		m_TextValue = new QPlainTextEdit("Subtitle Not Selected!", textCard);
 		m_TextValue->setStyleSheet(Styles::TextEditor());
+		connect(m_TextValue, &QPlainTextEdit::textChanged, this, &SubtitleEditorWidget::OnTextChanged);
 
 		QVBoxLayout* textLayout = new QVBoxLayout(textCard);
 		textLayout->setContentsMargins(Theme::Metrics::CardPadding, Theme::Metrics::CardPadding, Theme::Metrics::CardPadding, Theme::Metrics::CardPadding);
@@ -96,6 +100,9 @@ namespace SubtitleStudio
 	void SubtitleEditorWidget::SetSubtitle(Subtitle* subtitle)
 	{
 		m_CurrentSubtitle = subtitle;
+
+		// This Signal Blocker makes sure that setting the Subtitle doesn't attempt to modify the Subtitle's data in OnTextChanged
+		QSignalBlocker blocker(m_TextValue);
 
 		if (!m_CurrentSubtitle)
 		{
@@ -110,5 +117,14 @@ namespace SubtitleStudio
 		m_EndTimeValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End));
 		m_DurationValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End - m_CurrentSubtitle->Start));
 		m_TextValue->setPlainText(m_CurrentSubtitle->Text);
+	}
+
+	void SubtitleEditorWidget::OnTextChanged()
+	{
+		if (!m_CurrentSubtitle)
+			return;
+
+		m_CurrentSubtitle->Text = m_TextValue->toPlainText();
+		emit SubtitleChanged();
 	}
 }

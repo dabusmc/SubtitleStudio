@@ -18,10 +18,16 @@ namespace SubtitleStudio
 
 		void SetSubtitle(Subtitle* subtitle);
 
+	signals:
+		void SubtitleChanged();
+
 	private:
 		void CreateLayout();
 		QWidget* CreateTimingCard();
 		QWidget* CreateTextCard();
+
+	private slots:
+		void OnTextChanged();
 
 	private:
 		Subtitle* m_CurrentSubtitle;
