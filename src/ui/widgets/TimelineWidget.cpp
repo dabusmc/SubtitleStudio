@@ -75,12 +75,13 @@ namespace SubtitleStudio
 
         const auto& subtitles = m_StudioApp->GetSession().Track.Subtitles;
 
+        TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
         for (const auto& subtitle : subtitles)
         {
-            if (subtitle.End < m_Viewport.Start)
+            if (subtitle.End < viewport.Start)
                 continue;
 
-            if (subtitle.Start > m_Viewport.Start + m_Viewport.Duration)
+            if (subtitle.Start > viewport.Start + viewport.Duration)
                 continue;
 
             QRect box = GetSubtitleRect(subtitle);
@@ -104,7 +105,8 @@ namespace SubtitleStudio
         painter.setPen(QColor(90, 90, 90));
         painter.drawLine(TimelineMargin, TopPadding + RulerHeight, width() - TimelineMargin, TopPadding + RulerHeight);
 
-        for (auto time = std::chrono::milliseconds(0); time <= m_Viewport.Duration; time += TickSpacing)
+        TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
+        for (auto time = viewport.Start; time <= viewport.Start + viewport.Duration; time += TickSpacing)
         {
             int x = TimeToX(time);
             painter.drawLine(x, RulerHeight - 5, x, RulerHeight);
@@ -156,18 +158,18 @@ namespace SubtitleStudio
     int TimelineWidget::TimeToX(std::chrono::milliseconds time) const
     {
         int usableWidth = width() - (TimelineMargin * 2);
-        double pixelsPerMillisecond = static_cast<double>(usableWidth) / m_Viewport.Duration.count();
+        double pixelsPerMillisecond = static_cast<double>(usableWidth) / m_StudioApp->GetSession().Viewport.Duration.count();
 
-        auto relativeTime = time - m_Viewport.Start;
+        auto relativeTime = time - m_StudioApp->GetSession().Viewport.Start;
         return TimelineMargin + static_cast<int>(relativeTime.count() * pixelsPerMillisecond);
     }
 
     std::chrono::milliseconds TimelineWidget::XToTime(int x) const
     {
         int usableWidth = width() - (TimelineMargin * 2);
-        double millisecondsPerPixel = static_cast<double>(m_Viewport.Duration.count()) / usableWidth;
+        double millisecondsPerPixel = static_cast<double>(m_StudioApp->GetSession().Viewport.Duration.count()) / usableWidth;
 
         auto relativeTime = std::chrono::milliseconds(static_cast<long long>((x - TimelineMargin) * millisecondsPerPixel));
-        return m_Viewport.Start + relativeTime;
+        return m_StudioApp->GetSession().Viewport.Start + relativeTime;
     }
 }

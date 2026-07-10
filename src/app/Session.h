@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "PlaybackState.h"
+#include "TimelineViewport.h"
 #include "subtitle/SubtitleTrack.h"
 
 namespace SubtitleStudio
@@ -14,5 +15,7 @@ namespace SubtitleStudio
 
 		SubtitleTrack Track;
 		PlaybackState Playback;
+
+		TimelineViewport Viewport;
 	};
 }

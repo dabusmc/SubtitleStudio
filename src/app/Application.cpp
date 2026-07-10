@@ -26,9 +26,16 @@ namespace SubtitleStudio
 		emit SessionChanged();
 	}
 
+	constexpr double FollowThreshold = 0.8;
 	void Application::OnPositionChanged(std::chrono::milliseconds position)
 	{
 		m_Session.Playback.Position = position;
+
+		if (m_Session.Playback.Position >= m_Session.Viewport.Start + (m_Session.Viewport.Duration * FollowThreshold))
+		{
+			m_Session.Viewport.Start += std::chrono::seconds(5);
+		}
+
 		emit PlaybackPositionChanged(m_Session.Playback.Position);
 	}
 }

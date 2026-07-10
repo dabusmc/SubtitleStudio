@@ -12,12 +12,6 @@
 
 namespace SubtitleStudio
 {
-	struct TimelineViewport
-	{
-		std::chrono::milliseconds Start = std::chrono::milliseconds(0);
-		std::chrono::milliseconds Duration = std::chrono::minutes(1);
-	};
-
 	class TimelineWidget : public QWidget
 	{
 		Q_OBJECT
@@ -44,6 +38,5 @@ namespace SubtitleStudio
 
 	private:
 		Application* m_StudioApp;
-		TimelineViewport m_Viewport;
 	};
 }
