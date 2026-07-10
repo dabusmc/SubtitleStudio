@@ -11,10 +11,11 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.1.2");
+        setWindowTitle("Subtitle Studio 0.1.3");
 
         CreateMenus();
         CreateCentralWidget();
+        CreateDockWidgets();
     }
 
     void MainWindow::CreateMenus()
@@ -61,6 +62,18 @@ namespace SubtitleStudio
         fileMenu->addAction(m_Exit);
     }
 
+    void MainWindow::CreateDockWidgets()
+    {
+        m_SubtitleDock = new QDockWidget("Subtitle Properties", this);
+        m_SubtitleDock->setAllowedAreas(Qt::LeftDockWidgetArea |Qt::RightDockWidgetArea);
+
+        m_SubtitleEditor = new SubtitleEditorWidget(m_SubtitleDock);
+        m_SubtitleDock->setWidget(m_SubtitleEditor);
+        addDockWidget(Qt::RightDockWidgetArea, m_SubtitleDock);
+
+        m_SubtitleDock->hide();
+    }
+
     void MainWindow::CreateCentralWidget()
     {
         auto* centralWidget = new QWidget(this);
@@ -77,6 +90,7 @@ namespace SubtitleStudio
 
         m_TimelineWidget = new TimelineWidget(centralWidget);
         m_TimelineWidget->SetApplication(&m_StudioApp);
+        connect(m_TimelineWidget, &TimelineWidget::SubtitlePropertiesOpen, this, &MainWindow::OnSubtitlePropertiesOpen);
 
         layout->addWidget(m_VideoWidget);
         layout->addWidget(m_PlaybackControls);
@@ -126,5 +140,12 @@ namespace SubtitleStudio
         {
             QMessageBox::critical(this, "Failed to Open Video", e.what());
         }
+    }
+
+    void MainWindow::OnSubtitlePropertiesOpen(Subtitle* subtitle)
+    {
+        m_SubtitleEditor->SetSubtitle(subtitle);
+        m_SubtitleDock->show();
+        m_SubtitleDock->raise();
     }
 }

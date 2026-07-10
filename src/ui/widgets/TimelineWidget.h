@@ -21,9 +21,13 @@ namespace SubtitleStudio
 
 		void SetApplication(Application* app);
 
+	signals:
+		void SubtitlePropertiesOpen(Subtitle* subtitle);
+
 	protected:
 		void paintEvent(QPaintEvent* event) override;
 		void mousePressEvent(QMouseEvent* event) override;
+		void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 	private:
 		void DrawTrack(QPainter& painter);

@@ -72,6 +72,17 @@ namespace SubtitleStudio
         update();
     }
 
+    void TimelineWidget::mouseDoubleClickEvent(QMouseEvent* event)
+    {
+        if (!m_StudioApp)
+            return;
+
+        if (Subtitle* subtitle = SubtitleAt(event->pos()))
+        {
+            emit SubtitlePropertiesOpen(subtitle);
+        }
+    }
+
     void TimelineWidget::DrawTrack(QPainter& painter)
     {
         QRect trackRect(TimelineMargin, TrackTop, width() - TimelineMargin * 2, TrackHeight);

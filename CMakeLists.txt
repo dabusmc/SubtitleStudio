@@ -31,6 +31,7 @@ qt_add_executable(SubtitleStudio
     src/ui/widgets/PlaybackControlsWidget.cpp
     src/ui/widgets/TimelineWidget.cpp
     src/ui/widgets/VideoWidget.cpp
+    src/ui/widgets/SubtitleEditorWidget.cpp
 )
 
 target_link_libraries(SubtitleStudio PRIVATE

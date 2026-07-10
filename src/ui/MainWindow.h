@@ -4,9 +4,11 @@
 #include "ui/widgets/VideoWidget.h"
 #include "ui/widgets/PlaybackControlsWidget.h"
 #include "ui/widgets/TimelineWidget.h"
+#include "ui/widgets/SubtitleEditorWidget.h"
 
-#include <QMainWindow>
 #include <QAction>
+#include <QMainWindow>
+#include <QDockWidget>
 
 namespace SubtitleStudio
 {
@@ -19,11 +21,14 @@ namespace SubtitleStudio
 
     private:
         void CreateMenus();
+        void CreateDockWidgets();
         void CreateCentralWidget();
 
     private:
         Application& m_StudioApp;
 
+        QDockWidget* m_SubtitleDock = nullptr;
+        SubtitleEditorWidget* m_SubtitleEditor = nullptr;
         VideoWidget* m_VideoWidget = nullptr;
         PlaybackControlsWidget* m_PlaybackControls = nullptr;
         TimelineWidget* m_TimelineWidget = nullptr;
@@ -37,5 +42,6 @@ namespace SubtitleStudio
     private slots:
         void OpenSubtitle();
         void OpenVideo();
+        void OnSubtitlePropertiesOpen(Subtitle* subtitle);
     };
 }
