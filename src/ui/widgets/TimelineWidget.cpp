@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "ui/Theme.h"
 #include "util/Timecode.h"
 
 #include <QPainter>
@@ -10,18 +11,10 @@ namespace SubtitleStudio
 {
     namespace
     {
-        constexpr int TimelineMargin = 10;
-        constexpr int TopPadding = 10;
-
         constexpr int RulerHeight = 20;
         constexpr auto TickSpacing = std::chrono::seconds(5);
-        
-        constexpr int TrackSpacing = 10;
-        constexpr int TrackHeight = 30;
-        constexpr int TrackTop = TopPadding + RulerHeight + TrackSpacing;
 
-        constexpr QColor NormalSubtitleColour(70, 150, 255);
-        constexpr QColor SelectedSubtitleColour(255, 180, 60);
+        constexpr int TrackTop = Theme::Metrics::TimelineTopPadding + RulerHeight + Theme::Metrics::TimelineTrackSpacing;
     }
 
     TimelineWidget::TimelineWidget(QWidget* parent)
@@ -44,7 +37,7 @@ namespace SubtitleStudio
     void TimelineWidget::paintEvent(QPaintEvent*)
     {
         QPainter painter(this);
-        painter.fillRect(rect(), QColor(40, 40, 40));
+        painter.fillRect(rect(), Theme::Colours::Background);
 
         if (!m_StudioApp)
             return;
@@ -85,8 +78,8 @@ namespace SubtitleStudio
 
     void TimelineWidget::DrawTrack(QPainter& painter)
     {
-        QRect trackRect(TimelineMargin, TrackTop, width() - TimelineMargin * 2, TrackHeight);
-        painter.fillRect(trackRect, QColor(55, 55, 55));
+        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
+        painter.fillRect(trackRect, Theme::Colours::Track);
 
         const auto& subtitles = m_StudioApp->GetSession().Track.Subtitles;
 
@@ -104,12 +97,12 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(&subtitle == m_SelectedSubtitle ? SelectedSubtitleColour : NormalSubtitleColour);
+            painter.setBrush(&subtitle == m_SelectedSubtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
-            painter.drawRoundedRect(box, 3, 3);
+            painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
 
-            painter.setPen(Qt::white);
+            painter.setPen(Theme::Colours::Text);
             painter.drawText(box, Qt::AlignCenter, subtitle.Text);
             
             painter.restore();
@@ -118,15 +111,15 @@ namespace SubtitleStudio
 
     void TimelineWidget::DrawRuler(QPainter& painter)
     {
-        painter.setPen(QColor(90, 90, 90));
-        painter.drawLine(TimelineMargin, TopPadding + RulerHeight, width() - TimelineMargin, TopPadding + RulerHeight);
+        painter.setPen(Theme::Colours::Border);
+        painter.drawLine(Theme::Metrics::TimelineMargin, Theme::Metrics::TimelineTopPadding + RulerHeight, width() - Theme::Metrics::TimelineMargin, Theme::Metrics::TimelineTopPadding + RulerHeight);
 
         TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
         for (auto time = viewport.Start; time <= viewport.Start + viewport.Duration; time += TickSpacing)
         {
             int x = TimeToX(time);
             painter.drawLine(x, RulerHeight - 5, x, RulerHeight);
-            painter.drawText(x + 5, TopPadding + RulerHeight - 8, Timecode::FormatTimeline(time));
+            painter.drawText(x + 5, Theme::Metrics::TimelineTopPadding + RulerHeight - 8, Timecode::FormatTimeline(time));
         }
     }
 
@@ -137,16 +130,16 @@ namespace SubtitleStudio
 
         QPolygon triangle;
 
-        triangle << QPoint(x, TopPadding + 8);
-        triangle << QPoint(x - 6, TopPadding);
-        triangle << QPoint(x + 6, TopPadding);
+        triangle << QPoint(x, Theme::Metrics::TimelineTopPadding + 8);
+        triangle << QPoint(x - 6, Theme::Metrics::TimelineTopPadding);
+        triangle << QPoint(x + 6, Theme::Metrics::TimelineTopPadding);
 
-        painter.setBrush(Qt::red);
+        painter.setBrush(Theme::Colours::Playhead);
         painter.setPen(Qt::NoPen);
         painter.drawPolygon(triangle);
 
-        painter.setPen(QPen(Qt::red, 2));
-        painter.drawLine(x, TopPadding + 8, x, height());
+        painter.setPen(QPen(Theme::Colours::Playhead, 2));
+        painter.drawLine(x, Theme::Metrics::TimelineTopPadding + 8, x, height());
     }
 
     Subtitle* TimelineWidget::SubtitleAt(const QPoint& point)
@@ -168,24 +161,24 @@ namespace SubtitleStudio
     {
         int left = TimeToX(subtitle.Start);
         int right = TimeToX(subtitle.End);
-        return QRect(left, TrackTop, right - left, TrackHeight);
+        return QRect(left, TrackTop, right - left, Theme::Metrics::TimelineTrackHeight);
     }
 
     int TimelineWidget::TimeToX(std::chrono::milliseconds time) const
     {
-        int usableWidth = width() - (TimelineMargin * 2);
+        int usableWidth = width() - (Theme::Metrics::TimelineMargin * 2);
         double pixelsPerMillisecond = static_cast<double>(usableWidth) / m_StudioApp->GetSession().Viewport.Duration.count();
 
         auto relativeTime = time - m_StudioApp->GetSession().Viewport.Start;
-        return TimelineMargin + static_cast<int>(relativeTime.count() * pixelsPerMillisecond);
+        return Theme::Metrics::TimelineMargin + static_cast<int>(relativeTime.count() * pixelsPerMillisecond);
     }
 
     std::chrono::milliseconds TimelineWidget::XToTime(int x) const
     {
-        int usableWidth = width() - (TimelineMargin * 2);
+        int usableWidth = width() - (Theme::Metrics::TimelineMargin * 2);
         double millisecondsPerPixel = static_cast<double>(m_StudioApp->GetSession().Viewport.Duration.count()) / usableWidth;
 
-        auto relativeTime = std::chrono::milliseconds(static_cast<long long>((x - TimelineMargin) * millisecondsPerPixel));
+        auto relativeTime = std::chrono::milliseconds(static_cast<long long>((x - Theme::Metrics::TimelineMargin) * millisecondsPerPixel));
         return m_StudioApp->GetSession().Viewport.Start + relativeTime;
     }
 }
