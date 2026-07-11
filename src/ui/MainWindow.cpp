@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.4.0");
+        setWindowTitle("Subtitle Studio 0.4.1");
 
         CreateMenus();
         CreateCentralWidget();
@@ -39,17 +39,13 @@ namespace SubtitleStudio
         // Save
         m_Save = new QAction("Save", this);
         m_Save->setShortcut(QKeySequence::Save);
-        connect(m_Save, &QAction::triggered, this, []() {
-                qDebug() << "Save Subtitles Clicked";
-            });
+        connect(m_Save, &QAction::triggered, this, &MainWindow::SaveSubtitle);
         fileMenu->addAction(m_Save);
         
         // Save As
         m_SaveAs = new QAction("Save As...", this);
         m_SaveAs->setShortcut(QKeySequence::SaveAs);
-        connect(m_SaveAs, &QAction::triggered, this, []() {
-                qDebug() << "Save Subtitles As Clicked";
-            });
+        connect(m_SaveAs, &QAction::triggered, this, &MainWindow::SaveAsSubtitle);
         fileMenu->addAction(m_SaveAs);
 
         // Separator
@@ -155,6 +151,30 @@ namespace SubtitleStudio
         catch (const std::exception& e)
         {
             QMessageBox::critical(this, "Failed to Open Video", e.what());
+        }
+    }
+
+    void MainWindow::SaveSubtitle()
+    {
+        m_StudioApp.SaveSubtitle();
+    }
+
+    void MainWindow::SaveAsSubtitle()
+    {
+        QString filename = QFileDialog::getSaveFileName(this, "Save Subtitle As", QString(), "SubRip (*.srt);;All Files (*)");
+
+        if (filename.isEmpty())
+        {
+            return;
+        }
+
+        try
+        {
+            m_StudioApp.SaveSubtitle(filename.toStdString());
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox::critical(this, "Failed to Save Subtitle As", e.what());
         }
     }
 

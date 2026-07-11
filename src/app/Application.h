@@ -20,6 +20,8 @@ namespace SubtitleStudio
 		void OpenSubtitle(const std::string& path);
 		void OpenVideo(const std::string& path);
 
+		void SaveSubtitle(const std::string& path = "");
+
 		void PlayPause();
 
 		void SeekRelative(std::chrono::milliseconds offset);

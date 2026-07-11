@@ -2,7 +2,6 @@
 
 TODO List (No Particular Order)
 -------------------------------
-# SRT Saving
 # Changing the Start/End of a subtitle with drag boxes
 # Creating New Subtitles
 # Multi-selection
@@ -21,6 +20,7 @@ TODO List (No Particular Order)
 # Allowing users to open a subtitle + video at the same time
 # Saving the last opened folder when selecting a subtitle or video
 # Allowing users to drag + drop subtitles and video files
+# Fix weird display issue with ruler on timeline
 # Give the keyboard functionality
 	# Make the spacebar pause/play
 	# Make the left/right arrow keys rewind and fast-forward
@@ -40,6 +40,7 @@ TODO List (No Particular Order)
 # Prompt before closing unsaved work
 # "Modified" indicator in title bar
 # Application icon
+# Support for Foreign Languages both in terms of subtitles but also the application itself
 
 # Handling other subtitle formats (maybe)
 	# Export to other formats
@@ -76,6 +77,20 @@ namespace SubtitleStudio
 		m_Player.Load(path);
 
 		emit SessionChanged();
+	}
+
+	void Application::SaveSubtitle(const std::string& path)
+	{
+		if (path.empty())
+		{
+			// Save to Open SRT File Location
+			SRT::Save(m_Session.Track, m_Session.SubtitlePath);
+		}
+		else
+		{
+			// Save to Path
+			SRT::Save(m_Session.Track, path);
+		}
 	}
 
 	void Application::PlayPause()

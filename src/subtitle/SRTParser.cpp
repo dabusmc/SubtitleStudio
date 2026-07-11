@@ -7,6 +7,9 @@
 #include "subtitle/Subtitle.h"
 #include "util/Timecode.h"
 
+#include <QList>
+#include <QString>
+
 namespace SubtitleStudio
 {
 	namespace SRT
@@ -84,7 +87,33 @@ namespace SubtitleStudio
 
 		void Save(const SubtitleTrack& track, const std::filesystem::path& path)
 		{
+			std::ofstream file(path, std::ios::binary);
 
+			if (!file)
+			{
+				throw std::runtime_error("Failed to open subtitle file for writing.");
+			}
+
+			for (std::size_t i = 0; i < track.Subtitles.size(); ++i)
+			{
+				const Subtitle& s = track.Subtitles[i];
+
+				// Index
+				file << (i + 1) << "\n";
+
+				// Timeline
+				file << Timecode::ToSRT(s.Start).toStdString() << " --> " << Timecode::ToSRT(s.End).toStdString() << "\n";
+
+				// Text (may contain multiple lines)
+				auto parts = s.Text.split('\n');
+				for (const auto& part : parts)
+				{
+					file << part.toUtf8().toStdString() << "\n";
+				}
+
+				// Blank line between entries
+				file << "\n";
+			}
 		}
 	}
 }

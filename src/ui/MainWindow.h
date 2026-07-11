@@ -45,6 +45,9 @@ namespace SubtitleStudio
         void OpenSubtitle();
         void OpenVideo();
 
+        void SaveSubtitle();
+        void SaveAsSubtitle();
+
         void ToggleSubtitleProperties();
 
         void OnSubtitlePropertiesOpen(Subtitle* subtitle);
