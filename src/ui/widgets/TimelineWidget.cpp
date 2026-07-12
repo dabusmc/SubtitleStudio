@@ -45,6 +45,7 @@ namespace SubtitleStudio
         DrawRuler(painter);
         DrawTracks(painter);
         DrawPlayhead(painter);
+        DrawDraggedSubtitle(painter);
     }
 
     void TimelineWidget::mousePressEvent(QMouseEvent* event)
@@ -204,6 +205,9 @@ namespace SubtitleStudio
             if (subtitle.Start > viewport.Start + viewport.Duration)
                 continue;
 
+            if (m_Drag.Mode == DragMode::Move && m_Drag.Selection.Subtitle == &subtitle)
+                continue;
+
             QRect box = GetSubtitleRect(subtitle, trackIndex);
 
             painter.save();
@@ -219,6 +223,34 @@ namespace SubtitleStudio
 
             painter.restore();
         }
+    }
+
+    void TimelineWidget::DrawDraggedSubtitle(QPainter& painter)
+    {
+        if (m_Drag.Mode != DragMode::Move)
+            return;
+
+        if (!m_Drag.Selection.Subtitle)
+            return;
+
+        QRect box = GetSubtitleRect(*m_Drag.Selection.Subtitle, m_Drag.TargetTrack);
+
+        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop(m_Drag.TargetTrack), width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
+
+        painter.save();
+
+        painter.setClipRect(trackRect);
+
+        painter.setBrush(Theme::Colours::AccentSelected);
+        painter.setPen(Qt::NoPen);
+
+        painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
+
+        painter.setPen(Theme::Colours::Text);
+
+        painter.drawText(box, Qt::AlignCenter, m_Drag.Selection.Subtitle->Text);
+
+        painter.restore();
     }
 
     void TimelineWidget::DrawRuler(QPainter& painter)
@@ -286,12 +318,12 @@ namespace SubtitleStudio
         return hit;
     }
 
-    QRect TimelineWidget::GetSubtitleRect(const Subtitle& subtitle, int trackIndex) const
+    QRect TimelineWidget::GetSubtitleRect(const Subtitle& subtitle, int displayTrack) const
     {
         int left = TimeToX(subtitle.Start);
         int right = TimeToX(subtitle.End);
 
-        return QRect(left, TrackTop(trackIndex), right - left, Theme::Metrics::TimelineTrackHeight);
+        return QRect(left, TrackTop(displayTrack), right - left, Theme::Metrics::TimelineTrackHeight);
     }
 
     int TimelineWidget::TimeToX(std::chrono::milliseconds time) const

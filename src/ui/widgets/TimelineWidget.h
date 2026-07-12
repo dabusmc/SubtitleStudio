@@ -40,11 +40,12 @@ namespace SubtitleStudio
 
 		void DrawTracks(QPainter& painter);
 		void DrawTrack(QPainter& painter, const SubtitleTrack& track, int trackIndex);
+		void DrawDraggedSubtitle(QPainter& painter);
 		void DrawRuler(QPainter& painter);
 		void DrawPlayhead(QPainter& painter);
 
 		TimelineHit HitTest(const QPoint& point);
-		QRect GetSubtitleRect(const Subtitle& subtitle, int trackIndex) const;
+		QRect GetSubtitleRect(const Subtitle& subtitle, int displayTrack) const;
 
 		int TimeToX(std::chrono::milliseconds time) const;
 		std::chrono::milliseconds XToTime(int x) const;
