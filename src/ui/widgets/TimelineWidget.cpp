@@ -54,8 +54,7 @@ namespace SubtitleStudio
 
         if (Subtitle* subtitle = SubtitleAt(event->pos()))
         {
-            m_SelectedSubtitle.TrackIndex = m_StudioApp->GetSession().ActiveTrack;
-            m_SelectedSubtitle.Subtitle = subtitle;
+            BeginMove(event, subtitle);
             update();
             return;
         }
@@ -74,6 +73,66 @@ namespace SubtitleStudio
         if (Subtitle* subtitle = SubtitleAt(event->pos()))
         {
             emit SubtitlePropertiesOpen(subtitle);
+        }
+    }
+
+    void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
+    {
+        if (m_Drag.Mode == DragMode::Move)
+        {
+            UpdateMove(event);
+        }
+
+        update();
+    }
+
+    void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
+    {
+        EndMove();
+        update();
+    }
+
+    void TimelineWidget::BeginMove(QMouseEvent* event, Subtitle* subtitle)
+    {
+        m_Drag.Mode = DragMode::Move;
+
+        m_Drag.MouseStart = event->pos();
+
+        m_Drag.Selection.TrackIndex = m_StudioApp->GetSession().ActiveTrack;
+        m_Drag.Selection.Subtitle = subtitle;
+
+        m_Drag.OriginalSubtitle = *subtitle;
+    }
+
+    void TimelineWidget::UpdateMove(QMouseEvent* event)
+    {
+        if (!m_Drag.Selection.Subtitle)
+            return;
+
+        auto startTime = XToTime(m_Drag.MouseStart.x());
+        auto currentTime = XToTime(event->pos().x());
+
+        auto delta = currentTime - startTime;
+        if (m_Drag.OriginalSubtitle.Start + delta < std::chrono::milliseconds(0))
+        {
+            delta = -m_Drag.OriginalSubtitle.Start;
+        }
+
+        m_Drag.Selection.Subtitle->Start = m_Drag.OriginalSubtitle.Start + delta;
+        m_Drag.Selection.Subtitle->End = m_Drag.OriginalSubtitle.End + delta;
+    }
+
+    void TimelineWidget::EndMove()
+    {
+        m_Drag.Mode = DragMode::None;
+
+        if (m_StudioApp->TracksAvailable())
+        {
+            auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
+
+            std::sort(subtitles.begin(), subtitles.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
+                return lhs.Start < rhs.Start;
+                });
         }
     }
 
@@ -107,7 +166,7 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(m_SelectedSubtitle.Subtitle == &subtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
+            painter.setBrush(m_Drag.Selection.Subtitle == &subtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
