@@ -66,6 +66,9 @@ namespace SubtitleStudio
 		connect(&m_Player, &VideoPlayer::VideoLoaded, this, &Application::OnVideoLoaded);
 		connect(&m_Player, &VideoPlayer::PositionChanged, this, &Application::OnPositionChanged);
 		connect(&m_Player, &VideoPlayer::PlayingStateChanged, this, &Application::OnPlayingStateChanged);
+		m_Editor.SetOnEdited([this]() {
+				emit SessionChanged();
+			});
 	}
 
 	bool Application::TracksAvailable() const

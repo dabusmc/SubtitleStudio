@@ -20,6 +20,36 @@ namespace SubtitleStudio
 		CreateLayout();
 	}
 
+	void SubtitleEditorWidget::SetApplication(Application* app)
+	{
+		m_StudioApp = app;
+		connect(app, &Application::SessionChanged, this, [this]() {
+				SetSubtitle(m_StudioApp->GetSubtitleEditor().Selection().Subtitle);
+			});
+	}
+
+	void SubtitleEditorWidget::SetSubtitle(Subtitle* subtitle)
+	{
+		m_CurrentSubtitle = subtitle;
+
+		// This Signal Blocker makes sure that setting the Subtitle doesn't attempt to modify the Subtitle's data in OnTextChanged
+		QSignalBlocker blocker(m_TextValue);
+
+		if (!m_CurrentSubtitle)
+		{
+			m_StartTimeValue->setText("0");
+			m_EndTimeValue->setText("0");
+			m_DurationValue->setText("0");
+			m_TextValue->setPlainText("");
+			return;
+		}
+
+		m_StartTimeValue->setText(Timecode::ToSRT(m_CurrentSubtitle->Start));
+		m_EndTimeValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End));
+		m_DurationValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End - m_CurrentSubtitle->Start));
+		m_TextValue->setPlainText(m_CurrentSubtitle->Text);
+	}
+
 	void SubtitleEditorWidget::CreateLayout()
 	{
 		QVBoxLayout* layout = new QVBoxLayout(this);
@@ -95,28 +125,6 @@ namespace SubtitleStudio
 		textLayout->addWidget(m_TextValue);
 
 		return textCard;
-	}
-
-	void SubtitleEditorWidget::SetSubtitle(Subtitle* subtitle)
-	{
-		m_CurrentSubtitle = subtitle;
-
-		// This Signal Blocker makes sure that setting the Subtitle doesn't attempt to modify the Subtitle's data in OnTextChanged
-		QSignalBlocker blocker(m_TextValue);
-
-		if (!m_CurrentSubtitle)
-		{
-			m_StartTimeValue->setText("0");
-			m_EndTimeValue->setText("0");
-			m_DurationValue->setText("0");
-			m_TextValue->setPlainText("");
-			return;
-		}
-
-		m_StartTimeValue->setText(Timecode::ToSRT(m_CurrentSubtitle->Start));
-		m_EndTimeValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End));
-		m_DurationValue->setText(Timecode::ToSRT(m_CurrentSubtitle->End - m_CurrentSubtitle->Start));
-		m_TextValue->setPlainText(m_CurrentSubtitle->Text);
 	}
 
 	void SubtitleEditorWidget::OnTextChanged()

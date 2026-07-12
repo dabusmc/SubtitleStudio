@@ -11,7 +11,7 @@ namespace SubtitleStudio
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.5.0");
+        setWindowTitle("Subtitle Studio 0.5.0a");
 
         CreateMenus();
         CreateCentralWidget();
@@ -74,6 +74,7 @@ namespace SubtitleStudio
         m_SubtitleDock->setAllowedAreas(Qt::LeftDockWidgetArea |Qt::RightDockWidgetArea);
 
         m_SubtitleEditor = new SubtitleEditorWidget(m_SubtitleDock);
+        m_SubtitleEditor->SetApplication(&m_StudioApp);
         m_SubtitleDock->setWidget(m_SubtitleEditor);
         addDockWidget(Qt::RightDockWidgetArea, m_SubtitleDock);
 

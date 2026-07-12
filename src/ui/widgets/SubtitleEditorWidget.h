@@ -1,5 +1,6 @@
 #pragma once
 
+#include "app/Application.h"
 #include "subtitle/Subtitle.h"
 
 #include <QLabel>
@@ -16,6 +17,7 @@ namespace SubtitleStudio
 	public:
 		explicit SubtitleEditorWidget(QWidget* parent = nullptr);
 
+		void SetApplication(Application* app);
 		void SetSubtitle(Subtitle* subtitle);
 
 	signals:
@@ -31,6 +33,7 @@ namespace SubtitleStudio
 
 	private:
 		Subtitle* m_CurrentSubtitle;
+		Application* m_StudioApp;
 
 		QLineEdit* m_StartTimeValue;
 		QLineEdit* m_EndTimeValue;

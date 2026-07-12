@@ -14,6 +14,8 @@ namespace SubtitleStudio
 		m_DragState.Selection = selection;
 		m_DragState.OriginalSubtitle = *selection.Subtitle;
 		m_DragState.TargetTrack = selection.TrackIndex;
+
+		m_Selection = selection;
 	}
 
 	void SubtitleEditor::DragBy(std::chrono::milliseconds delta, int targetTrack)
@@ -80,6 +82,10 @@ namespace SubtitleStudio
 		}
 
 		m_DragState = { };
+		if (m_OnEdited)
+		{
+			m_OnEdited();
+		}
 	}
 
 	SubtitleTrack& SubtitleEditor::CreateTrack()

@@ -28,8 +28,10 @@ namespace SubtitleStudio
     void TimelineWidget::SetApplication(Application* app)
     {
         m_StudioApp = app;
-        connect(m_StudioApp, &Application::PlaybackPositionChanged, this, [this](std::chrono::milliseconds)
-            {
+        connect(m_StudioApp, &Application::PlaybackPositionChanged, this, [this](std::chrono::milliseconds) {
+                update();
+            });
+        connect(m_StudioApp, &Application::SessionChanged, this, [this]() {
                 update();
             });
     }
@@ -57,8 +59,6 @@ namespace SubtitleStudio
         if (hit.Type == TimelineHitType::Body)
         {
             m_StudioApp->GetSubtitleEditor().BeginDrag(hit.Selection, event->pos());
-
-            update();
             return;
         }
 
@@ -92,14 +92,12 @@ namespace SubtitleStudio
         int targetTrack = YToTrack(event->pos().y());
 
         m_StudioApp->GetSubtitleEditor().DragBy(delta, targetTrack);
-
         update();
     }
 
     void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
     {
         m_StudioApp->GetSubtitleEditor().EndDrag();
-        update();
     }
 
     void TimelineWidget::DrawTracks(QPainter& painter)
@@ -135,6 +133,8 @@ namespace SubtitleStudio
 
         const auto& subtitles = track.Subtitles;
 
+        const auto& selection = m_StudioApp->GetSubtitleEditor().Selection();
+
         TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
         for (const auto& subtitle : subtitles)
         {
@@ -144,7 +144,7 @@ namespace SubtitleStudio
             if (subtitle->Start > viewport.Start + viewport.Duration)
                 continue;
 
-            if (drag.Mode == DragMode::Move && drag.Selection.Subtitle == subtitle.get())
+            if (drag.Mode == DragMode::Move && selection.Subtitle == subtitle.get())
                 continue;
 
             QRect box = GetSubtitleRect(*subtitle, trackIndex);
@@ -152,7 +152,7 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(drag.Selection.Subtitle == subtitle.get() ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
+            painter.setBrush(selection.Subtitle == subtitle.get() ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
