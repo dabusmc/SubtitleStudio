@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "Subtitle.h"
 
@@ -13,7 +14,7 @@ namespace SubtitleStudio
 		bool Visible = true;
 		bool Locked = false;
 
-		std::vector<Subtitle> Subtitles;
+		std::vector<std::unique_ptr<Subtitle>> Subtitles;
 	};
 }
 

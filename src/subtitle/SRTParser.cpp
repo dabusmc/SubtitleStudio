@@ -46,7 +46,7 @@ namespace SubtitleStudio
 				{
 					if (!current.Text.isEmpty())
 					{
-						track.Subtitles.push_back(current);
+						track.Subtitles.emplace_back(std::make_unique<Subtitle>(current));
 						current = { };
 					}
 					continue;
@@ -78,7 +78,7 @@ namespace SubtitleStudio
 
 			if (!current.Text.isEmpty())
 			{
-				track.Subtitles.push_back(current);
+				track.Subtitles.emplace_back(std::make_unique<Subtitle>(current));
 				current.Text = "";
 			}
 
@@ -96,7 +96,7 @@ namespace SubtitleStudio
 
 			for (std::size_t i = 0; i < track.Subtitles.size(); ++i)
 			{
-				const Subtitle& s = track.Subtitles[i];
+				const Subtitle& s = *track.Subtitles[i];
 
 				// Index
 				file << (i + 1) << "\n";

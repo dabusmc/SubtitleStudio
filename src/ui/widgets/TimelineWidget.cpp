@@ -144,17 +144,17 @@ namespace SubtitleStudio
             auto& source = tracks[sourceTrack].Subtitles;
             auto& destination = tracks[destinationTrack].Subtitles;
 
-            auto it = std::find_if(source.begin(), source.end(), [this](const Subtitle& subtitle) {
-                    return &subtitle == m_Drag.Selection.Subtitle;
-                });
+            auto it = std::find_if(source.begin(), source.end(), [this](const std::unique_ptr<Subtitle>& subtitle) {
+                        return subtitle.get() == m_Drag.Selection.Subtitle;
+                    });
 
             if (it != source.end())
             {
-                destination.push_back(*it);
+                destination.push_back(std::move(*it));
                 source.erase(it);
 
-                std::sort(destination.begin(), destination.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
-                        return lhs.Start < rhs.Start;
+                std::sort(destination.begin(), destination.end(), [](const auto& lhs, const auto& rhs) {
+                        return lhs->Start < rhs->Start;
                     });
             }
         }
@@ -162,8 +162,8 @@ namespace SubtitleStudio
         {
             auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
 
-            std::sort(subtitles.begin(), subtitles.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
-                    return lhs.Start < rhs.Start;
+            std::sort(subtitles.begin(), subtitles.end(), [](const auto& lhs, const auto& rhs) {
+                    return lhs->Start < rhs->Start;
                 });
         }
 
@@ -199,27 +199,27 @@ namespace SubtitleStudio
         TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
         for (const auto& subtitle : subtitles)
         {
-            if (subtitle.End < viewport.Start)
+            if (subtitle->End < viewport.Start)
                 continue;
 
-            if (subtitle.Start > viewport.Start + viewport.Duration)
+            if (subtitle->Start > viewport.Start + viewport.Duration)
                 continue;
 
-            if (m_Drag.Mode == DragMode::Move && m_Drag.Selection.Subtitle == &subtitle)
+            if (m_Drag.Mode == DragMode::Move && m_Drag.Selection.Subtitle == subtitle.get())
                 continue;
 
-            QRect box = GetSubtitleRect(subtitle, trackIndex);
+            QRect box = GetSubtitleRect(*subtitle, trackIndex);
 
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(m_Drag.Selection.Subtitle == &subtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
+            painter.setBrush(m_Drag.Selection.Subtitle == subtitle.get() ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
 
             painter.setPen(Theme::Colours::Text);
-            painter.drawText(box, Qt::AlignCenter, subtitle.Text);
+            painter.drawText(box, Qt::AlignCenter, subtitle->Text);
 
             painter.restore();
         }
@@ -302,14 +302,14 @@ namespace SubtitleStudio
 
             for (auto& subtitle : track.Subtitles)
             {
-                if (!GetSubtitleRect(subtitle, trackIndex).contains(point))
+                if (!GetSubtitleRect(*subtitle, trackIndex).contains(point))
                 {
                     continue;
                 }
 
                 hit.Type = TimelineHitType::Body;
                 hit.Selection.TrackIndex = trackIndex;
-                hit.Selection.Subtitle = &subtitle;
+                hit.Selection.Subtitle = subtitle.get();
 
                 return hit;
             }

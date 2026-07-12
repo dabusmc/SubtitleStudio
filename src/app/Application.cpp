@@ -147,8 +147,6 @@ namespace SubtitleStudio
 
 		m_Session.SubtitlePath = path;
 
-		m_Session.Tracks.push_back(m_Session.Tracks.front());
-
 		emit SessionChanged();
 	}
 
@@ -205,7 +203,7 @@ namespace SubtitleStudio
 
 		if (currentIndex != -1)
 		{
-			Subtitle& current = ActiveTrack().Subtitles[currentIndex];
+			Subtitle& current = *ActiveTrack().Subtitles[currentIndex];
 
 			if (m_Session.Playback.Position > current.Start)
 			{
@@ -215,7 +213,7 @@ namespace SubtitleStudio
 
 			if (currentIndex > 0)
 			{
-				m_Player.Seek(ActiveTrack().Subtitles[currentIndex - 1].Start);
+				m_Player.Seek(ActiveTrack().Subtitles[currentIndex - 1]->Start);
 			}
 
 			return;
@@ -225,7 +223,7 @@ namespace SubtitleStudio
 
 		if (previousIndex != -1)
 		{
-			m_Player.Seek(ActiveTrack().Subtitles[previousIndex].Start);
+			m_Player.Seek(ActiveTrack().Subtitles[previousIndex]->Start);
 		}
 	}
 
@@ -238,7 +236,7 @@ namespace SubtitleStudio
 
 		if (currentIndex != -1)
 		{
-			Subtitle& current = ActiveTrack().Subtitles[currentIndex];
+			Subtitle& current = *ActiveTrack().Subtitles[currentIndex];
 
 			if (m_Session.Playback.Position < current.End)
 			{
@@ -248,7 +246,7 @@ namespace SubtitleStudio
 
 			if (currentIndex + 1 < static_cast<int>(ActiveTrack().Subtitles.size()))
 			{
-				m_Player.Seek(ActiveTrack().Subtitles[currentIndex + 1].Start);
+				m_Player.Seek(ActiveTrack().Subtitles[currentIndex + 1]->Start);
 			}
 
 			return;
@@ -258,7 +256,7 @@ namespace SubtitleStudio
 
 		if (nextIndex != -1)
 		{
-			m_Player.Seek(ActiveTrack().Subtitles[nextIndex].Start);
+			m_Player.Seek(ActiveTrack().Subtitles[nextIndex]->Start);
 		}
 	}
 
@@ -272,7 +270,7 @@ namespace SubtitleStudio
 
 		if (index >= 0 && index < static_cast<int>(subtitles.size()))
 		{
-			return &subtitles[index];
+			return subtitles[index].get();
 		}
 
 		return nullptr;
@@ -293,7 +291,7 @@ namespace SubtitleStudio
 
 		for (int i = static_cast<int>(subtitles.size()) - 1; i >= 0; --i)
 		{
-			if (subtitles[i].Start < position)
+			if (subtitles[i]->Start < position)
 			{
 				return i;
 			}
@@ -312,7 +310,7 @@ namespace SubtitleStudio
 
 		for (int i = 0; i < static_cast<int>(subtitles.size()); ++i)
 		{
-			if (subtitles[i].Start > position)
+			if (subtitles[i]->Start > position)
 			{
 				return i;
 			}
@@ -331,8 +329,7 @@ namespace SubtitleStudio
 		for (int i = 0; i < static_cast<int>(subtitles.size()); ++i)
 		{
 			const auto& subtitle = subtitles[i];
-
-			if (subtitle.Start <= position && position < subtitle.End)
+			if (subtitle->Start <= position && position < subtitle->End)
 			{
 				return i;
 			}
@@ -351,11 +348,14 @@ namespace SubtitleStudio
 			if (!track.Visible)
 				continue;
 
-			output.Subtitles.insert(output.Subtitles.end(), track.Subtitles.begin(), track.Subtitles.end());
+			for (const auto& subtitle : track.Subtitles)
+			{
+				output.Subtitles.push_back(std::make_unique<Subtitle>(*subtitle));
+			}
 		}
 
-		std::sort(output.Subtitles.begin(), output.Subtitles.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
-				return lhs.Start < rhs.Start;
+		std::sort(output.Subtitles.begin(), output.Subtitles.end(), [](const auto& lhs, const auto& rhs) {
+				return lhs->Start < rhs->Start;
 			});
 
 		return output;
