@@ -52,9 +52,10 @@ namespace SubtitleStudio
         if (!m_StudioApp)
             return;
 
-        if (Subtitle* subtitle = SubtitleAt(event->pos()))
+        TimelineHit hit = HitTest(event->pos());
+        if (hit.Type == TimelineHitType::Body)
         {
-            BeginMove(event, subtitle);
+            BeginMove(event, hit.Selection);
             update();
             return;
         }
@@ -70,15 +71,16 @@ namespace SubtitleStudio
         if (!m_StudioApp)
             return;
 
-        if (Subtitle* subtitle = SubtitleAt(event->pos()))
+        TimelineHit hit = HitTest(event->pos());
+        if (hit.Type == TimelineHitType::Body)
         {
-            emit SubtitlePropertiesOpen(subtitle);
+            emit SubtitlePropertiesOpen(hit.Selection.Subtitle);
         }
     }
 
     void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
     {
-        if (m_Drag.Mode == DragMode::Move)
+        if (m_Drag.Mode == DragMode::Move && (event->buttons() & Qt::LeftButton))
         {
             UpdateMove(event);
         }
@@ -88,20 +90,19 @@ namespace SubtitleStudio
 
     void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
     {
-        EndMove();
-        update();
+        if (m_Drag.Mode != DragMode::None)
+        {
+            EndMove();
+            update();
+        }
     }
 
-    void TimelineWidget::BeginMove(QMouseEvent* event, Subtitle* subtitle)
+    void TimelineWidget::BeginMove(QMouseEvent* event, const SubtitleSelection& selection)
     {
         m_Drag.Mode = DragMode::Move;
-
         m_Drag.MouseStart = event->pos();
-
-        m_Drag.Selection.TrackIndex = m_StudioApp->GetSession().ActiveTrack;
-        m_Drag.Selection.Subtitle = subtitle;
-
-        m_Drag.OriginalSubtitle = *subtitle;
+        m_Drag.Selection = selection;
+        m_Drag.OriginalSubtitle = *selection.Subtitle;
     }
 
     void TimelineWidget::UpdateMove(QMouseEvent* event)
@@ -211,22 +212,36 @@ namespace SubtitleStudio
         painter.drawLine(x, Theme::Metrics::TimelineTopPadding + 8, x, height());
     }
 
-    Subtitle* TimelineWidget::SubtitleAt(const QPoint& point)
+    TimelineHit TimelineWidget::HitTest(const QPoint& point)
     {
+        TimelineHit hit;
+
         if (!m_StudioApp->TracksAvailable())
-            return nullptr;
-
-        auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
-
-        for (auto& subtitle : subtitles)
         {
-            if (GetSubtitleRect(subtitle).contains(point))
+            return hit;
+        }
+
+        auto& tracks = m_StudioApp->GetSession().Tracks;
+        for (int trackIndex = 0; trackIndex < static_cast<int>(tracks.size()); ++trackIndex)
+        {
+            auto& track = tracks[trackIndex];
+
+            for (auto& subtitle : track.Subtitles)
             {
-                return &subtitle;
+                if (!GetSubtitleRect(subtitle).contains(point))
+                {
+                    continue;
+                }
+
+                hit.Type = TimelineHitType::Body;
+                hit.Selection.TrackIndex = trackIndex;
+                hit.Selection.Subtitle = &subtitle;
+
+                return hit;
             }
         }
 
-        return nullptr;
+        return hit;
     }
 
     QRect TimelineWidget::GetSubtitleRect(const Subtitle& subtitle) const

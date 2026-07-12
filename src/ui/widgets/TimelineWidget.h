@@ -4,7 +4,8 @@
 
 #include "app/Application.h"
 #include "subtitle/Subtitle.h"
-#include "TimelineDragState.h"
+#include "timeline/TimelineDragState.h"
+#include "timeline/TimelineHit.h"
 
 #include <QRect>
 #include <QWidget>
@@ -33,7 +34,7 @@ namespace SubtitleStudio
 		void mouseReleaseEvent(QMouseEvent* event) override;
 
 	private:
-		void BeginMove(QMouseEvent* event, Subtitle* subtitle);
+		void BeginMove(QMouseEvent* event, const SubtitleSelection& selection);
 		void UpdateMove(QMouseEvent* event);
 		void EndMove();
 
@@ -41,7 +42,7 @@ namespace SubtitleStudio
 		void DrawRuler(QPainter& painter);
 		void DrawPlayhead(QPainter& painter);
 
-		Subtitle* SubtitleAt(const QPoint& point);
+		TimelineHit HitTest(const QPoint& point);
 		QRect GetSubtitleRect(const Subtitle& subtitle) const;
 
 		int TimeToX(std::chrono::milliseconds time) const;

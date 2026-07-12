@@ -45,6 +45,7 @@ TODO List (No Particular Order)
 # Support for Foreign Languages both in terms of subtitles but also the application itself
 # See if there's a cheap way to make the video less choppy
 # Properly update view subtitles properties
+# Make sure subtitles properties updates when moving/changing subtitle time
 
 # Handling other subtitle formats (maybe)
 	# Export to other formats
