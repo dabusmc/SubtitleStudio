@@ -137,6 +137,11 @@ namespace SubtitleStudio
         int sourceTrack = m_Drag.Selection.TrackIndex;
         int destinationTrack = m_Drag.TargetTrack;
 
+        if (destinationTrack == m_StudioApp->TrackCount())
+        {
+            m_StudioApp->CreateTrack();
+        }
+
         if (sourceTrack != destinationTrack)
         {
             auto& tracks = m_StudioApp->GetSession().Tracks;
@@ -177,6 +182,11 @@ namespace SubtitleStudio
         for (int i = 0; i < static_cast<int>(tracks.size()); ++i)
         {
             DrawTrack(painter, tracks[i], i);
+        }
+
+        if (IsPreviewTrack(m_Drag.TargetTrack))
+        {
+            DrawEmptyTrack(painter, m_Drag.TargetTrack);
         }
     }
 
@@ -253,6 +263,16 @@ namespace SubtitleStudio
         painter.restore();
     }
 
+    void TimelineWidget::DrawEmptyTrack(QPainter& painter, int trackIndex)
+    {
+        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop(trackIndex), width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
+        painter.fillRect(trackRect, Theme::Colours::Track);
+
+        painter.setPen(QPen(Theme::Colours::AccentSelected, 2));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(trackRect);
+    }
+
     void TimelineWidget::DrawRuler(QPainter& painter)
     {
         painter.setPen(Theme::Colours::Border);
@@ -284,6 +304,11 @@ namespace SubtitleStudio
 
         painter.setPen(QPen(Theme::Colours::Playhead, 2));
         painter.drawLine(x, Theme::Metrics::TimelineTopPadding + 8, x, height());
+    }
+
+    bool TimelineWidget::IsPreviewTrack(int trackIndex) const
+    {
+        return m_Drag.Mode == DragMode::Move && trackIndex == m_StudioApp->TrackCount();
     }
 
     TimelineHit TimelineWidget::HitTest(const QPoint& point)
@@ -363,7 +388,7 @@ namespace SubtitleStudio
 
         int pitch = Theme::Metrics::TimelineTrackHeight + Theme::Metrics::TimelineTrackSpacing;
         int track = y / pitch;
-        int maxTrack = static_cast<int>(m_StudioApp->GetSession().Tracks.size()) - 1;
+        int maxTrack = static_cast<int>(m_StudioApp->TrackCount());
         return std::clamp(track, 0, maxTrack);
     }
 }

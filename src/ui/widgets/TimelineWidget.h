@@ -41,8 +41,11 @@ namespace SubtitleStudio
 		void DrawTracks(QPainter& painter);
 		void DrawTrack(QPainter& painter, const SubtitleTrack& track, int trackIndex);
 		void DrawDraggedSubtitle(QPainter& painter);
+		void DrawEmptyTrack(QPainter& painter, int trackIndex);
 		void DrawRuler(QPainter& painter);
 		void DrawPlayhead(QPainter& painter);
+
+		bool IsPreviewTrack(int trackIndex) const;
 
 		TimelineHit HitTest(const QPoint& point);
 		QRect GetSubtitleRect(const Subtitle& subtitle, int displayTrack) const;
