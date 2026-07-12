@@ -19,5 +19,6 @@ namespace SubtitleStudio
         QPoint MouseStart;
         SubtitleSelection Selection;
         Subtitle OriginalSubtitle;
+        int TargetTrack = -1;
     };
 }

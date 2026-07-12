@@ -45,12 +45,11 @@ namespace SubtitleStudio
 
 		TimelineHit HitTest(const QPoint& point);
 		QRect GetSubtitleRect(const Subtitle& subtitle, int trackIndex) const;
-		int TrackTop(int trackIndex) const;
 
 		int TimeToX(std::chrono::milliseconds time) const;
 		std::chrono::milliseconds XToTime(int x) const;
 
-		int TrackToY(int track) const;
+		int TrackTop(int trackIndex) const;
 		int YToTrack(int y) const;
 
 	private:

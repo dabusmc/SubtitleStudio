@@ -103,6 +103,7 @@ namespace SubtitleStudio
         m_Drag.MouseStart = event->pos();
         m_Drag.Selection = selection;
         m_Drag.OriginalSubtitle = *selection.Subtitle;
+        m_Drag.TargetTrack = selection.TrackIndex;
     }
 
     void TimelineWidget::UpdateMove(QMouseEvent* event)
@@ -121,20 +122,51 @@ namespace SubtitleStudio
 
         m_Drag.Selection.Subtitle->Start = m_Drag.OriginalSubtitle.Start + delta;
         m_Drag.Selection.Subtitle->End = m_Drag.OriginalSubtitle.End + delta;
+        m_Drag.TargetTrack = YToTrack(event->pos().y());
     }
 
     void TimelineWidget::EndMove()
     {
-        m_Drag.Mode = DragMode::None;
+        if (!m_Drag.Selection.Subtitle)
+        {
+            m_Drag.Mode = DragMode::None;
+            return;
+        }
 
-        if (m_StudioApp->TracksAvailable())
+        int sourceTrack = m_Drag.Selection.TrackIndex;
+        int destinationTrack = m_Drag.TargetTrack;
+
+        if (sourceTrack != destinationTrack)
+        {
+            auto& tracks = m_StudioApp->GetSession().Tracks;
+
+            auto& source = tracks[sourceTrack].Subtitles;
+            auto& destination = tracks[destinationTrack].Subtitles;
+
+            auto it = std::find_if(source.begin(), source.end(), [this](const Subtitle& subtitle) {
+                    return &subtitle == m_Drag.Selection.Subtitle;
+                });
+
+            if (it != source.end())
+            {
+                destination.push_back(*it);
+                source.erase(it);
+
+                std::sort(destination.begin(), destination.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
+                        return lhs.Start < rhs.Start;
+                    });
+            }
+        }
+        else
         {
             auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
 
             std::sort(subtitles.begin(), subtitles.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
-                return lhs.Start < rhs.Start;
+                    return lhs.Start < rhs.Start;
                 });
         }
+
+        m_Drag.Mode = DragMode::None;
     }
 
     void TimelineWidget::DrawTracks(QPainter& painter)
@@ -153,6 +185,13 @@ namespace SubtitleStudio
 
         QRect trackRect(Theme::Metrics::TimelineMargin, top, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
         painter.fillRect(trackRect, Theme::Colours::Track);
+
+        if (trackIndex == m_Drag.TargetTrack && m_Drag.Mode == DragMode::Move)
+        {
+            painter.setPen(QPen(Theme::Colours::AccentSelected,2));
+            painter.setBrush(Qt::NoBrush);
+            painter.drawRect(trackRect);
+        }
 
         const auto& subtitles = track.Subtitles;
 
@@ -255,12 +294,6 @@ namespace SubtitleStudio
         return QRect(left, TrackTop(trackIndex), right - left, Theme::Metrics::TimelineTrackHeight);
     }
 
-    int TimelineWidget::TrackTop(int trackIndex) const
-    {
-        return Theme::Metrics::TimelineTopPadding + RulerHeight + Theme::Metrics::TimelineTrackSpacing + trackIndex *
-            (Theme::Metrics::TimelineTrackHeight + Theme::Metrics::TimelineTrackSpacing);
-    }
-
     int TimelineWidget::TimeToX(std::chrono::milliseconds time) const
     {
         int usableWidth = width() - (Theme::Metrics::TimelineMargin * 2);
@@ -277,5 +310,28 @@ namespace SubtitleStudio
 
         auto relativeTime = std::chrono::milliseconds(static_cast<long long>((x - Theme::Metrics::TimelineMargin) * millisecondsPerPixel));
         return m_StudioApp->GetSession().Viewport.Start + relativeTime;
+    }
+
+    int TimelineWidget::TrackTop(int trackIndex) const
+    {
+        return Theme::Metrics::TimelineTopPadding + RulerHeight + Theme::Metrics::TimelineTrackSpacing + trackIndex *
+            (Theme::Metrics::TimelineTrackHeight + Theme::Metrics::TimelineTrackSpacing);
+    }
+
+    int TimelineWidget::YToTrack(int y) const
+    {
+        y -= Theme::Metrics::TimelineTopPadding;
+        y -= RulerHeight;
+        y -= Theme::Metrics::TimelineTrackSpacing;
+
+        if (y < 0)
+        {
+            return 0;
+        }
+
+        int pitch = Theme::Metrics::TimelineTrackHeight + Theme::Metrics::TimelineTrackSpacing;
+        int track = y / pitch;
+        int maxTrack = static_cast<int>(m_StudioApp->GetSession().Tracks.size()) - 1;
+        return std::clamp(track, 0, maxTrack);
     }
 }
