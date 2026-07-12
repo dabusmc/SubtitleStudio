@@ -4,8 +4,6 @@
 
 #include "app/Application.h"
 #include "subtitle/Subtitle.h"
-#include "timeline/TimelineDragState.h"
-#include "timeline/TimelineHit.h"
 
 #include <QRect>
 #include <QWidget>
@@ -14,6 +12,21 @@
 
 namespace SubtitleStudio
 {
+	enum class TimelineHitType
+	{
+		None,
+		Body,
+		LeftEdge,
+		RightEdge
+	};
+
+	struct TimelineHit
+	{
+		TimelineHitType Type = TimelineHitType::None;
+
+		SubtitleSelection Selection;
+	};
+
 	class TimelineWidget : public QWidget
 	{
 		Q_OBJECT
@@ -34,10 +47,6 @@ namespace SubtitleStudio
 		void mouseReleaseEvent(QMouseEvent* event) override;
 
 	private:
-		void BeginMove(QMouseEvent* event, const SubtitleSelection& selection);
-		void UpdateMove(QMouseEvent* event);
-		void EndMove();
-
 		void DrawTracks(QPainter& painter);
 		void DrawTrack(QPainter& painter, const SubtitleTrack& track, int trackIndex);
 		void DrawDraggedSubtitle(QPainter& painter);
@@ -58,6 +67,5 @@ namespace SubtitleStudio
 
 	private:
 		Application* m_StudioApp;
-		TimelineDragState m_Drag;
 	};
 }

@@ -61,7 +61,7 @@ TODO List (No Particular Order)
 namespace SubtitleStudio
 {
 	Application::Application(QObject* parent)
-		: QObject(parent), m_Session(), m_Player(this)
+		: QObject(parent), m_Session(), m_Editor(m_Session), m_Player(this)
 	{
 		connect(&m_Player, &VideoPlayer::VideoLoaded, this, &Application::OnVideoLoaded);
 		connect(&m_Player, &VideoPlayer::PositionChanged, this, &Application::OnPositionChanged);

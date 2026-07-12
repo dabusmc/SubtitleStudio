@@ -13,7 +13,7 @@ namespace SubtitleStudio
         Move
     };
 
-    struct TimelineDragState
+    struct SubtitleDragState
     {
         DragMode Mode = DragMode::None;
         QPoint MouseStart;

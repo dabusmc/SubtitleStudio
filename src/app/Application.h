@@ -2,6 +2,7 @@
 
 #include "Session.h"
 #include "video/VideoPlayer.h"
+#include "subtitle/editor/SubtitleEditor.h"
 
 #include <QObject>
 
@@ -16,6 +17,7 @@ namespace SubtitleStudio
 
 		Session& GetSession() { return m_Session; }
 		VideoPlayer& GetVideoPlayer() { return m_Player; }
+		SubtitleEditor& GetSubtitleEditor() { return m_Editor; }
 
 		bool TracksAvailable() const;
 		SubtitleTrack& CreateTrack();
@@ -65,6 +67,7 @@ namespace SubtitleStudio
 
 	private:
 		Session m_Session;
+		SubtitleEditor m_Editor;
 		VideoPlayer m_Player;
 	};
 }

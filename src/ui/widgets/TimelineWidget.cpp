@@ -56,7 +56,8 @@ namespace SubtitleStudio
         TimelineHit hit = HitTest(event->pos());
         if (hit.Type == TimelineHitType::Body)
         {
-            BeginMove(event, hit.Selection);
+            m_StudioApp->GetSubtitleEditor().BeginDrag(hit.Selection, event->pos());
+
             update();
             return;
         }
@@ -81,98 +82,24 @@ namespace SubtitleStudio
 
     void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
     {
-        if (m_Drag.Mode == DragMode::Move && (event->buttons() & Qt::LeftButton))
-        {
-            UpdateMove(event);
-        }
+        if (!(event->buttons() & Qt::LeftButton))
+            return;
+
+        auto start = XToTime(m_StudioApp->GetSubtitleEditor().DragState().MouseStart.x());
+        auto current = XToTime(event->pos().x());
+        auto delta = current - start;
+
+        int targetTrack = YToTrack(event->pos().y());
+
+        m_StudioApp->GetSubtitleEditor().DragBy(delta, targetTrack);
 
         update();
     }
 
     void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
     {
-        if (m_Drag.Mode != DragMode::None)
-        {
-            EndMove();
-            update();
-        }
-    }
-
-    void TimelineWidget::BeginMove(QMouseEvent* event, const SubtitleSelection& selection)
-    {
-        m_Drag.Mode = DragMode::Move;
-        m_Drag.MouseStart = event->pos();
-        m_Drag.Selection = selection;
-        m_Drag.OriginalSubtitle = *selection.Subtitle;
-        m_Drag.TargetTrack = selection.TrackIndex;
-    }
-
-    void TimelineWidget::UpdateMove(QMouseEvent* event)
-    {
-        if (!m_Drag.Selection.Subtitle)
-            return;
-
-        auto startTime = XToTime(m_Drag.MouseStart.x());
-        auto currentTime = XToTime(event->pos().x());
-
-        auto delta = currentTime - startTime;
-        if (m_Drag.OriginalSubtitle.Start + delta < std::chrono::milliseconds(0))
-        {
-            delta = -m_Drag.OriginalSubtitle.Start;
-        }
-
-        m_Drag.Selection.Subtitle->Start = m_Drag.OriginalSubtitle.Start + delta;
-        m_Drag.Selection.Subtitle->End = m_Drag.OriginalSubtitle.End + delta;
-        m_Drag.TargetTrack = YToTrack(event->pos().y());
-    }
-
-    void TimelineWidget::EndMove()
-    {
-        if (!m_Drag.Selection.Subtitle)
-        {
-            m_Drag.Mode = DragMode::None;
-            return;
-        }
-
-        int sourceTrack = m_Drag.Selection.TrackIndex;
-        int destinationTrack = m_Drag.TargetTrack;
-
-        if (destinationTrack == m_StudioApp->TrackCount())
-        {
-            m_StudioApp->CreateTrack();
-        }
-
-        if (sourceTrack != destinationTrack)
-        {
-            auto& tracks = m_StudioApp->GetSession().Tracks;
-
-            auto& source = tracks[sourceTrack].Subtitles;
-            auto& destination = tracks[destinationTrack].Subtitles;
-
-            auto it = std::find_if(source.begin(), source.end(), [this](const std::unique_ptr<Subtitle>& subtitle) {
-                        return subtitle.get() == m_Drag.Selection.Subtitle;
-                    });
-
-            if (it != source.end())
-            {
-                destination.push_back(std::move(*it));
-                source.erase(it);
-
-                std::sort(destination.begin(), destination.end(), [](const auto& lhs, const auto& rhs) {
-                        return lhs->Start < rhs->Start;
-                    });
-            }
-        }
-        else
-        {
-            auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
-
-            std::sort(subtitles.begin(), subtitles.end(), [](const auto& lhs, const auto& rhs) {
-                    return lhs->Start < rhs->Start;
-                });
-        }
-
-        m_Drag.Mode = DragMode::None;
+        m_StudioApp->GetSubtitleEditor().EndDrag();
+        update();
     }
 
     void TimelineWidget::DrawTracks(QPainter& painter)
@@ -184,9 +111,10 @@ namespace SubtitleStudio
             DrawTrack(painter, tracks[i], i);
         }
 
-        if (IsPreviewTrack(m_Drag.TargetTrack))
+        const auto& drag = m_StudioApp->GetSubtitleEditor().DragState();
+        if (IsPreviewTrack(drag.TargetTrack))
         {
-            DrawEmptyTrack(painter, m_Drag.TargetTrack);
+            DrawEmptyTrack(painter, drag.TargetTrack);
         }
     }
 
@@ -197,7 +125,8 @@ namespace SubtitleStudio
         QRect trackRect(Theme::Metrics::TimelineMargin, top, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
         painter.fillRect(trackRect, Theme::Colours::Track);
 
-        if (trackIndex == m_Drag.TargetTrack && m_Drag.Mode == DragMode::Move)
+        const auto& drag = m_StudioApp->GetSubtitleEditor().DragState();
+        if (trackIndex == drag.TargetTrack && drag.Mode == DragMode::Move)
         {
             painter.setPen(QPen(Theme::Colours::AccentSelected,2));
             painter.setBrush(Qt::NoBrush);
@@ -215,7 +144,7 @@ namespace SubtitleStudio
             if (subtitle->Start > viewport.Start + viewport.Duration)
                 continue;
 
-            if (m_Drag.Mode == DragMode::Move && m_Drag.Selection.Subtitle == subtitle.get())
+            if (drag.Mode == DragMode::Move && drag.Selection.Subtitle == subtitle.get())
                 continue;
 
             QRect box = GetSubtitleRect(*subtitle, trackIndex);
@@ -223,7 +152,7 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(m_Drag.Selection.Subtitle == subtitle.get() ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
+            painter.setBrush(drag.Selection.Subtitle == subtitle.get() ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
@@ -237,15 +166,17 @@ namespace SubtitleStudio
 
     void TimelineWidget::DrawDraggedSubtitle(QPainter& painter)
     {
-        if (m_Drag.Mode != DragMode::Move)
+        const auto& drag = m_StudioApp->GetSubtitleEditor().DragState();
+
+        if (drag.Mode != DragMode::Move)
             return;
 
-        if (!m_Drag.Selection.Subtitle)
+        if (!drag.Selection.Subtitle)
             return;
 
-        QRect box = GetSubtitleRect(*m_Drag.Selection.Subtitle, m_Drag.TargetTrack);
+        QRect box = GetSubtitleRect(*drag.Selection.Subtitle, drag.TargetTrack);
 
-        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop(m_Drag.TargetTrack), width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
+        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop(drag.TargetTrack), width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
 
         painter.save();
 
@@ -258,7 +189,7 @@ namespace SubtitleStudio
 
         painter.setPen(Theme::Colours::Text);
 
-        painter.drawText(box, Qt::AlignCenter, m_Drag.Selection.Subtitle->Text);
+        painter.drawText(box, Qt::AlignCenter, drag.Selection.Subtitle->Text);
 
         painter.restore();
     }
@@ -308,7 +239,8 @@ namespace SubtitleStudio
 
     bool TimelineWidget::IsPreviewTrack(int trackIndex) const
     {
-        return m_Drag.Mode == DragMode::Move && trackIndex == m_StudioApp->TrackCount();
+        const auto& drag = m_StudioApp->GetSubtitleEditor().DragState();
+        return drag.Mode == DragMode::Move && trackIndex == m_StudioApp->TrackCount();
     }
 
     TimelineHit TimelineWidget::HitTest(const QPoint& point)

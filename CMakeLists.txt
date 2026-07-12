@@ -28,6 +28,8 @@ qt_add_executable(SubtitleStudio
     src/subtitle/Subtitle.cpp
     src/subtitle/SubtitleTrack.cpp
     src/subtitle/SRTParser.cpp
+    
+    src/subtitle/editor/SubtitleEditor.cpp
 
     src/video/VideoPlayer.cpp
 
