@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <vector>
 
 #include "PlaybackState.h"
 #include "TimelineViewport.h"
@@ -13,7 +14,9 @@ namespace SubtitleStudio
 		std::filesystem::path VideoPath;
 		std::filesystem::path SubtitlePath;
 
-		SubtitleTrack Track;
+		std::vector<SubtitleTrack> Tracks;
+		int ActiveTrack = -1;
+		
 		PlaybackState Playback;
 
 		TimelineViewport Viewport;

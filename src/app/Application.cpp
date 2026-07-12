@@ -4,6 +4,7 @@ TODO List (No Particular Order)
 -------------------------------
 # Changing the Start/End of a subtitle with drag boxes
 # Creating New Subtitles
+# Multiple Tracks
 # Multi-selection
 	# Ctrl + Click
 	# Shift + Click
@@ -41,6 +42,8 @@ TODO List (No Particular Order)
 # "Modified" indicator in title bar
 # Application icon
 # Support for Foreign Languages both in terms of subtitles but also the application itself
+# See if there's a cheap way to make the video less choppy
+# Properly update view subtitles properties
 
 # Handling other subtitle formats (maybe)
 	# Export to other formats
@@ -63,9 +66,83 @@ namespace SubtitleStudio
 		connect(&m_Player, &VideoPlayer::PlayingStateChanged, this, &Application::OnPlayingStateChanged);
 	}
 
+	bool Application::TracksAvailable() const
+	{
+		return !m_Session.Tracks.empty();
+	}
+
+	SubtitleTrack& Application::CreateTrack()
+	{
+		m_Session.Tracks.emplace_back();
+
+		auto& track = m_Session.Tracks.back();
+
+		track.Name = "Track " + std::to_string(m_Session.Tracks.size());
+
+		if (m_Session.ActiveTrack == -1)
+		{
+			m_Session.ActiveTrack = 0;
+		}
+
+		emit SessionChanged();
+
+		return track;
+	}
+
+	void Application::RemoveTrack(int index)
+	{
+		if (index < 0 || index >= static_cast<int>(m_Session.Tracks.size()))
+			return;
+
+		m_Session.Tracks.erase(m_Session.Tracks.begin() + index);
+
+		if (m_Session.Tracks.empty())
+		{
+			m_Session.ActiveTrack = -1;
+		}
+		else if (m_Session.ActiveTrack >= static_cast<int>(m_Session.Tracks.size()))
+		{
+			m_Session.ActiveTrack = static_cast<int>(m_Session.Tracks.size()) - 1;
+		}
+
+		emit SessionChanged();
+	}
+
+	SubtitleTrack& Application::Track(int index)
+	{
+		return m_Session.Tracks[index];
+	}
+
+	const SubtitleTrack& Application::Track(int index) const
+	{
+		return m_Session.Tracks[index];
+	}
+
+	SubtitleTrack& Application::ActiveTrack()
+	{
+		return Track(m_Session.ActiveTrack);
+	}
+
+	const SubtitleTrack& Application::ActiveTrack() const
+	{
+		return Track(m_Session.ActiveTrack);
+	}
+
+	int Application::TrackCount() const
+	{
+		return static_cast<int>(m_Session.Tracks.size());
+	}
+
 	void Application::OpenSubtitle(const std::string& path)
 	{
-		m_Session.Track = SRT::Load(path);
+		m_Session.Tracks.clear();
+		m_Session.ActiveTrack = -1;
+
+		SubtitleTrack& track = CreateTrack();
+
+		track = SRT::Load(path);
+		track.Name = "Track 1";
+
 		m_Session.SubtitlePath = path;
 
 		emit SessionChanged();
@@ -81,15 +158,18 @@ namespace SubtitleStudio
 
 	void Application::SaveSubtitle(const std::string& path)
 	{
+		if (m_Session.Tracks.empty())
+			return;
+
 		if (path.empty())
 		{
 			// Save to Open SRT File Location
-			SRT::Save(m_Session.Track, m_Session.SubtitlePath);
+			SRT::Save(BuildExportTrack(), m_Session.SubtitlePath);
 		}
 		else
 		{
 			// Save to Path
-			SRT::Save(m_Session.Track, path);
+			SRT::Save(BuildExportTrack(), path);
 		}
 	}
 
@@ -114,11 +194,14 @@ namespace SubtitleStudio
 
 	void Application::PreviousSubtitleBoundary()
 	{
+		if (m_Session.Tracks.empty())
+			return;
+
 		int currentIndex = CurrentSubtitleIndex();
 
 		if (currentIndex != -1)
 		{
-			Subtitle& current = m_Session.Track.Subtitles[currentIndex];
+			Subtitle& current = ActiveTrack().Subtitles[currentIndex];
 
 			if (m_Session.Playback.Position > current.Start)
 			{
@@ -128,7 +211,7 @@ namespace SubtitleStudio
 
 			if (currentIndex > 0)
 			{
-				m_Player.Seek(m_Session.Track.Subtitles[currentIndex - 1].Start);
+				m_Player.Seek(ActiveTrack().Subtitles[currentIndex - 1].Start);
 			}
 
 			return;
@@ -138,17 +221,20 @@ namespace SubtitleStudio
 
 		if (previousIndex != -1)
 		{
-			m_Player.Seek(m_Session.Track.Subtitles[previousIndex].Start);
+			m_Player.Seek(ActiveTrack().Subtitles[previousIndex].Start);
 		}
 	}
 
 	void Application::NextSubtitleBoundary()
 	{
+		if (m_Session.Tracks.empty())
+			return;
+
 		int currentIndex = CurrentSubtitleIndex();
 
 		if (currentIndex != -1)
 		{
-			Subtitle& current = m_Session.Track.Subtitles[currentIndex];
+			Subtitle& current = ActiveTrack().Subtitles[currentIndex];
 
 			if (m_Session.Playback.Position < current.End)
 			{
@@ -156,9 +242,9 @@ namespace SubtitleStudio
 				return;
 			}
 
-			if (currentIndex + 1 < static_cast<int>(m_Session.Track.Subtitles.size()))
+			if (currentIndex + 1 < static_cast<int>(ActiveTrack().Subtitles.size()))
 			{
-				m_Player.Seek(m_Session.Track.Subtitles[currentIndex + 1].Start);
+				m_Player.Seek(ActiveTrack().Subtitles[currentIndex + 1].Start);
 			}
 
 			return;
@@ -168,13 +254,16 @@ namespace SubtitleStudio
 
 		if (nextIndex != -1)
 		{
-			m_Player.Seek(m_Session.Track.Subtitles[nextIndex].Start);
+			m_Player.Seek(ActiveTrack().Subtitles[nextIndex].Start);
 		}
 	}
 
 	Subtitle* Application::CurrentSubtitle()
 	{
-		auto& subtitles = m_Session.Track.Subtitles;
+		if (m_Session.Tracks.empty())
+			return nullptr;
+
+		auto& subtitles = ActiveTrack().Subtitles;
 		auto index = CurrentSubtitleIndex();
 
 		if (index >= 0 && index < static_cast<int>(subtitles.size()))
@@ -192,7 +281,10 @@ namespace SubtitleStudio
 
 	int Application::PreviousSubtitleIndex() const
 	{
-		const auto& subtitles = m_Session.Track.Subtitles;
+		if (m_Session.Tracks.empty())
+			return -1;
+
+		const auto& subtitles = ActiveTrack().Subtitles;
 		auto position = m_Session.Playback.Position;
 
 		for (int i = static_cast<int>(subtitles.size()) - 1; i >= 0; --i)
@@ -208,7 +300,10 @@ namespace SubtitleStudio
 
 	int Application::NextSubtitleIndex() const
 	{
-		const auto& subtitles = m_Session.Track.Subtitles;
+		if (m_Session.Tracks.empty())
+			return -1;
+
+		const auto& subtitles = ActiveTrack().Subtitles;
 		auto position = m_Session.Playback.Position;
 
 		for (int i = 0; i < static_cast<int>(subtitles.size()); ++i)
@@ -224,7 +319,10 @@ namespace SubtitleStudio
 
 	int Application::SubtitleIndexAt(std::chrono::milliseconds position) const
 	{
-		const auto& subtitles = m_Session.Track.Subtitles;
+		if (m_Session.Tracks.empty())
+			return -1;
+
+		const auto& subtitles = ActiveTrack().Subtitles;
 
 		for (int i = 0; i < static_cast<int>(subtitles.size()); ++i)
 		{
@@ -237,6 +335,26 @@ namespace SubtitleStudio
 		}
 
 		return -1;
+	}
+
+	SubtitleTrack Application::BuildExportTrack()
+	{
+		SubtitleTrack output;
+		output.Name = "Export";
+
+		for (const auto& track : m_Session.Tracks)
+		{
+			if (!track.Visible)
+				continue;
+
+			output.Subtitles.insert(output.Subtitles.end(), track.Subtitles.begin(), track.Subtitles.end());
+		}
+
+		std::sort(output.Subtitles.begin(), output.Subtitles.end(), [](const Subtitle& lhs, const Subtitle& rhs) {
+				return lhs.Start < rhs.Start;
+			});
+
+		return output;
 	}
 
 	void Application::OnVideoLoaded(std::chrono::milliseconds duration)

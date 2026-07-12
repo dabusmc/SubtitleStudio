@@ -18,7 +18,7 @@ namespace SubtitleStudio
     }
 
     TimelineWidget::TimelineWidget(QWidget* parent)
-        : QWidget(parent), m_StudioApp(nullptr), m_SelectedSubtitle(nullptr)
+        : QWidget(parent), m_StudioApp(nullptr)
     {
         setMinimumHeight(150);
 
@@ -54,7 +54,8 @@ namespace SubtitleStudio
 
         if (Subtitle* subtitle = SubtitleAt(event->pos()))
         {
-            m_SelectedSubtitle = subtitle;
+            m_SelectedSubtitle.TrackIndex = m_StudioApp->GetSession().ActiveTrack;
+            m_SelectedSubtitle.Subtitle = subtitle;
             update();
             return;
         }
@@ -81,10 +82,19 @@ namespace SubtitleStudio
         QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
         painter.fillRect(trackRect, Theme::Colours::Track);
 
-        const auto& subtitles = m_StudioApp->GetSession().Track.Subtitles;
+        const std::vector<Subtitle>* subtitles = nullptr;
+        if (m_StudioApp->TracksAvailable())
+        {
+            subtitles = &m_StudioApp->ActiveTrack().Subtitles;
+        }
+
+        if (!subtitles)
+        {
+            return;
+        }
 
         TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
-        for (const auto& subtitle : subtitles)
+        for (const auto& subtitle : *subtitles)
         {
             if (subtitle.End < viewport.Start)
                 continue;
@@ -97,7 +107,7 @@ namespace SubtitleStudio
             painter.save();
             painter.setClipRect(trackRect);
 
-            painter.setBrush(&subtitle == m_SelectedSubtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
+            painter.setBrush(m_SelectedSubtitle.Subtitle == &subtitle ? Theme::Colours::AccentSelected : Theme::Colours::Accent);
 
             painter.setPen(Qt::NoPen);
             painter.drawRoundedRect(box, Theme::Metrics::BorderRadius, Theme::Metrics::BorderRadius);
@@ -144,7 +154,10 @@ namespace SubtitleStudio
 
     Subtitle* TimelineWidget::SubtitleAt(const QPoint& point)
     {
-        auto& subtitles = m_StudioApp->GetSession().Track.Subtitles;
+        if (!m_StudioApp->TracksAvailable())
+            return nullptr;
+
+        auto& subtitles = m_StudioApp->ActiveTrack().Subtitles;
 
         for (auto& subtitle : subtitles)
         {

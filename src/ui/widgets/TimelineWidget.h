@@ -4,6 +4,7 @@
 
 #include "app/Application.h"
 #include "subtitle/Subtitle.h"
+#include "subtitle/SubtitleSelection.h"
 
 #include <QRect>
 #include <QWidget>
@@ -42,6 +43,6 @@ namespace SubtitleStudio
 
 	private:
 		Application* m_StudioApp;
-		Subtitle* m_SelectedSubtitle;
+		SubtitleSelection m_SelectedSubtitle;
 	};
 }

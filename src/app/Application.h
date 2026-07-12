@@ -17,6 +17,19 @@ namespace SubtitleStudio
 		Session& GetSession() { return m_Session; }
 		VideoPlayer& GetVideoPlayer() { return m_Player; }
 
+		bool TracksAvailable() const;
+		SubtitleTrack& CreateTrack();
+
+		void RemoveTrack(int index);
+
+		SubtitleTrack& Track(int index);
+		const SubtitleTrack& Track(int index) const;
+
+		SubtitleTrack& ActiveTrack();
+		const SubtitleTrack& ActiveTrack() const;
+
+		int TrackCount() const;
+
 		void OpenSubtitle(const std::string& path);
 		void OpenVideo(const std::string& path);
 
@@ -37,6 +50,8 @@ namespace SubtitleStudio
 		int NextSubtitleIndex() const;
 
 		int SubtitleIndexAt(std::chrono::milliseconds position) const;
+
+		SubtitleTrack BuildExportTrack();
 
 	signals:
 		void SessionChanged();
