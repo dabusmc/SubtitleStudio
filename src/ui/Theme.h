@@ -64,6 +64,7 @@ namespace SubtitleStudio
             constexpr int TimelineTopPadding = 10;
             constexpr int TimelineTrackHeight = 30;
             constexpr int TimelineTrackSpacing = 10;
+            constexpr int TimelineTrackHeader = 0;
         }
 
         // Helpers

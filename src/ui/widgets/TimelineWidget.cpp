@@ -43,7 +43,7 @@ namespace SubtitleStudio
             return;
 
         DrawRuler(painter);
-        DrawTrack(painter);
+        DrawTracks(painter);
         DrawPlayhead(painter);
     }
 
@@ -137,24 +137,27 @@ namespace SubtitleStudio
         }
     }
 
-    void TimelineWidget::DrawTrack(QPainter& painter)
+    void TimelineWidget::DrawTracks(QPainter& painter)
     {
-        QRect trackRect(Theme::Metrics::TimelineMargin, TrackTop, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
+        const auto& tracks = m_StudioApp->GetSession().Tracks;
+
+        for (int i = 0; i < static_cast<int>(tracks.size()); ++i)
+        {
+            DrawTrack(painter, tracks[i], i);
+        }
+    }
+
+    void TimelineWidget::DrawTrack(QPainter& painter, const SubtitleTrack& track, int trackIndex)
+    {
+        int top = TrackTop(trackIndex);
+
+        QRect trackRect(Theme::Metrics::TimelineMargin, top, width() - Theme::Metrics::TimelineMargin * 2, Theme::Metrics::TimelineTrackHeight);
         painter.fillRect(trackRect, Theme::Colours::Track);
 
-        const std::vector<Subtitle>* subtitles = nullptr;
-        if (m_StudioApp->TracksAvailable())
-        {
-            subtitles = &m_StudioApp->ActiveTrack().Subtitles;
-        }
-
-        if (!subtitles)
-        {
-            return;
-        }
+        const auto& subtitles = track.Subtitles;
 
         TimelineViewport& viewport = m_StudioApp->GetSession().Viewport;
-        for (const auto& subtitle : *subtitles)
+        for (const auto& subtitle : subtitles)
         {
             if (subtitle.End < viewport.Start)
                 continue;
@@ -162,7 +165,7 @@ namespace SubtitleStudio
             if (subtitle.Start > viewport.Start + viewport.Duration)
                 continue;
 
-            QRect box = GetSubtitleRect(subtitle);
+            QRect box = GetSubtitleRect(subtitle, trackIndex);
 
             painter.save();
             painter.setClipRect(trackRect);
@@ -174,7 +177,7 @@ namespace SubtitleStudio
 
             painter.setPen(Theme::Colours::Text);
             painter.drawText(box, Qt::AlignCenter, subtitle.Text);
-            
+
             painter.restore();
         }
     }
@@ -228,7 +231,7 @@ namespace SubtitleStudio
 
             for (auto& subtitle : track.Subtitles)
             {
-                if (!GetSubtitleRect(subtitle).contains(point))
+                if (!GetSubtitleRect(subtitle, trackIndex).contains(point))
                 {
                     continue;
                 }
@@ -244,11 +247,18 @@ namespace SubtitleStudio
         return hit;
     }
 
-    QRect TimelineWidget::GetSubtitleRect(const Subtitle& subtitle) const
+    QRect TimelineWidget::GetSubtitleRect(const Subtitle& subtitle, int trackIndex) const
     {
         int left = TimeToX(subtitle.Start);
         int right = TimeToX(subtitle.End);
-        return QRect(left, TrackTop, right - left, Theme::Metrics::TimelineTrackHeight);
+
+        return QRect(left, TrackTop(trackIndex), right - left, Theme::Metrics::TimelineTrackHeight);
+    }
+
+    int TimelineWidget::TrackTop(int trackIndex) const
+    {
+        return Theme::Metrics::TimelineTopPadding + RulerHeight + Theme::Metrics::TimelineTrackSpacing + trackIndex *
+            (Theme::Metrics::TimelineTrackHeight + Theme::Metrics::TimelineTrackSpacing);
     }
 
     int TimelineWidget::TimeToX(std::chrono::milliseconds time) const

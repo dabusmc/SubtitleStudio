@@ -147,6 +147,8 @@ namespace SubtitleStudio
 
 		m_Session.SubtitlePath = path;
 
+		m_Session.Tracks.push_back(m_Session.Tracks.front());
+
 		emit SessionChanged();
 	}
 

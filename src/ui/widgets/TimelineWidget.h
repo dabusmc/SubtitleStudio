@@ -38,15 +38,20 @@ namespace SubtitleStudio
 		void UpdateMove(QMouseEvent* event);
 		void EndMove();
 
-		void DrawTrack(QPainter& painter);
+		void DrawTracks(QPainter& painter);
+		void DrawTrack(QPainter& painter, const SubtitleTrack& track, int trackIndex);
 		void DrawRuler(QPainter& painter);
 		void DrawPlayhead(QPainter& painter);
 
 		TimelineHit HitTest(const QPoint& point);
-		QRect GetSubtitleRect(const Subtitle& subtitle) const;
+		QRect GetSubtitleRect(const Subtitle& subtitle, int trackIndex) const;
+		int TrackTop(int trackIndex) const;
 
 		int TimeToX(std::chrono::milliseconds time) const;
 		std::chrono::milliseconds XToTime(int x) const;
+
+		int TrackToY(int track) const;
+		int YToTrack(int y) const;
 
 	private:
 		Application* m_StudioApp;
