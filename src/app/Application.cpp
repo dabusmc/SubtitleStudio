@@ -11,6 +11,7 @@ TODO List (No Particular Order)
 	# Select All
 # Moving subtitles by dragging
 	# Snap subtitle edges to neighbouring subtitles
+	# Moving up and down changes track
 # Deleting Subtitles
 # Splitting a subtitle
 	# Merging subtitles
