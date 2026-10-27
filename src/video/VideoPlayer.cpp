@@ -21,9 +21,8 @@ namespace SubtitleStudio
 	void VideoPlayer::Load(const std::string& file)
 	{
 		m_MediaPlayer->setSource(QUrl::fromLocalFile(QString::fromUtf8(file)));
-
-		// For now, we instantly start playing when loading
 		Play();
+		Pause();
 	}
 
 	void VideoPlayer::Play()

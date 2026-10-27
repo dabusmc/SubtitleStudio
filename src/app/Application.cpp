@@ -40,7 +40,6 @@ TODO List (No Particular Order)
 # Recent files
 # Auto Save
 # Prompt before closing unsaved work
-# "Modified" indicator in title bar
 # Application icon
 # Support for Foreign Languages both in terms of subtitles but also the application itself
 # See if there's a cheap way to make the video less choppy
@@ -68,6 +67,7 @@ namespace SubtitleStudio
 		connect(&m_Player, &VideoPlayer::PlayingStateChanged, this, &Application::OnPlayingStateChanged);
 		m_Editor.SetOnEdited([this]() {
 				emit SessionChanged();
+				emit SubtitlesChanged();
 			});
 	}
 
@@ -203,7 +203,6 @@ namespace SubtitleStudio
 			return;
 
 		int currentIndex = CurrentSubtitleIndex();
-
 		if (currentIndex != -1)
 		{
 			Subtitle& current = *ActiveTrack().Subtitles[currentIndex];
@@ -223,7 +222,6 @@ namespace SubtitleStudio
 		}
 
 		int previousIndex = PreviousSubtitleIndex();
-
 		if (previousIndex != -1)
 		{
 			m_Player.Seek(ActiveTrack().Subtitles[previousIndex]->Start);
@@ -236,7 +234,6 @@ namespace SubtitleStudio
 			return;
 
 		int currentIndex = CurrentSubtitleIndex();
-
 		if (currentIndex != -1)
 		{
 			Subtitle& current = *ActiveTrack().Subtitles[currentIndex];
@@ -256,7 +253,6 @@ namespace SubtitleStudio
 		}
 
 		int nextIndex = NextSubtitleIndex();
-
 		if (nextIndex != -1)
 		{
 			m_Player.Seek(ActiveTrack().Subtitles[nextIndex]->Start);
@@ -328,8 +324,7 @@ namespace SubtitleStudio
 			return -1;
 
 		const auto& subtitles = ActiveTrack().Subtitles;
-
-		for (int i = 0; i < static_cast<int>(subtitles.size()); ++i)
+		for (size_t i = 0; i < subtitles.size(); ++i)
 		{
 			const auto& subtitle = subtitles[i];
 			if (subtitle->Start <= position && position < subtitle->End)

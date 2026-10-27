@@ -7,11 +7,17 @@
 
 namespace SubtitleStudio
 {
+    const std::string c_Title = "Subtitle Studio 0.5.1";
+
     MainWindow::MainWindow(Application& studioApp, QWidget* parent)
         : m_StudioApp(studioApp), QMainWindow(parent)
     {
         resize(1280, 720);
-        setWindowTitle("Subtitle Studio 0.5.0a");
+        setWindowTitle(c_Title.c_str());
+
+        connect(&m_StudioApp, &Application::SubtitlesChanged, this, [this]() {
+                OnSubtitlesEdited();
+            });
 
         CreateMenus();
         CreateCentralWidget();
@@ -78,9 +84,9 @@ namespace SubtitleStudio
         m_SubtitleDock->setWidget(m_SubtitleEditor);
         addDockWidget(Qt::RightDockWidgetArea, m_SubtitleDock);
 
-        connect(m_SubtitleEditor, &SubtitleEditorWidget::SubtitleChanged, this, [this]()
-            {
+        connect(m_SubtitleEditor, &SubtitleEditorWidget::SubtitleChanged, this, [this]() {
                 m_TimelineWidget->update();
+                OnSubtitlesEdited();
             });
 
         m_SubtitleDock->hide();
@@ -119,7 +125,6 @@ namespace SubtitleStudio
     void MainWindow::OpenSubtitle()
     {
         QString filename = QFileDialog::getOpenFileName(this, "Open Subtitle", QString(), "SubRip (*.srt);;All Files (*)");
-
         if (filename.isEmpty())
         {
             return;
@@ -137,13 +142,14 @@ namespace SubtitleStudio
 
     void MainWindow::OpenVideo()
     {
-        QString filename = QFileDialog::getOpenFileName(this, "Open Video", QString(),
-            "Video Files (*.mp4 *.mkv *.avi *.mov *.wmv *.webm *.m4v);;All Files (*)");
-
+        QString filename = QFileDialog::getOpenFileName(this, "Open Video", QString(), "Video Files (*.mp4 *.mkv *.avi *.mov *.wmv *.webm *.m4v);;All Files (*)");
         if (filename.isEmpty())
         {
             return;
         }
+
+        QFileInfo info(filename);
+        QString folder = info.absolutePath();
 
         try
         {
@@ -158,12 +164,12 @@ namespace SubtitleStudio
     void MainWindow::SaveSubtitle()
     {
         m_StudioApp.SaveSubtitle();
+        setWindowTitle(c_Title.c_str());
     }
 
     void MainWindow::SaveAsSubtitle()
     {
         QString filename = QFileDialog::getSaveFileName(this, "Save Subtitle As", QString(), "SubRip (*.srt);;All Files (*)");
-
         if (filename.isEmpty())
         {
             return;
@@ -172,6 +178,7 @@ namespace SubtitleStudio
         try
         {
             m_StudioApp.SaveSubtitle(filename.toStdString());
+            setWindowTitle(c_Title.c_str());
         }
         catch (const std::exception& e)
         {
@@ -190,6 +197,13 @@ namespace SubtitleStudio
         {
             m_SubtitleDock->hide();
         }
+    }
+
+    void MainWindow::OnSubtitlesEdited()
+    {
+        std::string newText = c_Title;
+        newText.append(" (*Modified)");
+        setWindowTitle(newText.c_str());
     }
 
     void MainWindow::OnSubtitlePropertiesOpen(Subtitle* subtitle)

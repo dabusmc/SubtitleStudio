@@ -56,6 +56,7 @@ namespace SubtitleStudio
 		SubtitleTrack BuildExportTrack();
 
 	signals:
+		void SubtitlesChanged();
 		void SessionChanged();
 		void PlayingStateChanged(bool playing);
 		void PlaybackPositionChanged(std::chrono::milliseconds position);

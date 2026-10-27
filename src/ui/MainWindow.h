@@ -50,6 +50,7 @@ namespace SubtitleStudio
 
         void ToggleSubtitleProperties();
 
+        void OnSubtitlesEdited();
         void OnSubtitlePropertiesOpen(Subtitle* subtitle);
     };
 }
