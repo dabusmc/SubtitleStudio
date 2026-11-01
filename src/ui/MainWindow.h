@@ -35,6 +35,8 @@ namespace SubtitleStudio
 
         QAction* m_OpenVideo = nullptr;
         QAction* m_OpenSubtitle = nullptr;
+        QAction* m_CloseVideo = nullptr;
+        QAction* m_CloseSubtitle = nullptr;
         QAction* m_Save = nullptr;
         QAction* m_SaveAs = nullptr;
         QAction* m_Exit = nullptr;
@@ -44,6 +46,9 @@ namespace SubtitleStudio
     private slots:
         void OpenSubtitle();
         void OpenVideo();
+
+        void CloseSubtitle();
+        void CloseVideo();
 
         void SaveSubtitle();
         void SaveAsSubtitle();

@@ -18,6 +18,8 @@ namespace SubtitleStudio
 		explicit VideoPlayer(QObject* parent = nullptr);
 
 		void Load(const std::string& file);
+		void Close();
+
 		void Play();
 		void Pause();
 		void Reset();

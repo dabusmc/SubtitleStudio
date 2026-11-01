@@ -11,8 +11,8 @@ namespace SubtitleStudio
 {
 	struct Session
 	{
-		std::filesystem::path VideoPath;
-		std::filesystem::path SubtitlePath;
+		std::filesystem::path VideoPath = "";
+		std::filesystem::path SubtitlePath = "";
 
 		std::vector<SubtitleTrack> Tracks;
 		int ActiveTrack = -1;

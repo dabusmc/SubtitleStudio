@@ -20,9 +20,16 @@ namespace SubtitleStudio
 
 	void VideoPlayer::Load(const std::string& file)
 	{
+		Reset();
 		m_MediaPlayer->setSource(QUrl::fromLocalFile(QString::fromUtf8(file)));
 		Play();
 		Pause();
+	}
+
+	void VideoPlayer::Close()
+	{
+		Pause();
+		m_MediaPlayer->setSource(QUrl());
 	}
 
 	void VideoPlayer::Play()

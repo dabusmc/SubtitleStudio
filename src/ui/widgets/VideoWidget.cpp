@@ -19,6 +19,12 @@ namespace SubtitleStudio
         connect(app, &Application::PlaybackPositionChanged, this, [this](std::chrono::milliseconds){
                 update();
             });
+        connect(app, &Application::SessionChanged, this, [this]() {
+                if (m_StudioApp->GetSession().VideoPath.empty())
+                {
+                    m_CurrentFrame = QImage();
+                }
+            });
     }
 
     void VideoWidget::paintEvent(QPaintEvent*)

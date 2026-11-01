@@ -30,8 +30,6 @@ TODO List (No Particular Order)
 # Customisation options for Subtitles display
 # Comments/Code Cleanup
 # License Comments at the top of Source Files
-# Closing Videos and Subtitles individually
-	# Allowing videos to be closed mid-play
 # Timeline Movement
 	# Timeline zoom with Ctrl + mouse wheel
 	# Timeline horizontal scrolling with mouse wheel
@@ -159,6 +157,28 @@ namespace SubtitleStudio
 		m_Player.Load(path);
 
 		emit SessionChanged();
+	}
+
+	void Application::CloseSubtitle()
+	{
+		if (!m_Session.SubtitlePath.empty())
+		{
+			m_Session.Tracks.clear();
+			m_Session.ActiveTrack = -1;
+			m_Session.SubtitlePath = "";
+			emit SessionChanged();
+		}
+	}
+
+	void Application::CloseVideo()
+	{
+		if (!m_Session.VideoPath.empty())
+		{
+			m_Session.VideoPath = "";
+			m_Player.Close();
+
+			emit SessionChanged();
+		}
 	}
 
 	void Application::SaveSubtitle(const std::string& path)

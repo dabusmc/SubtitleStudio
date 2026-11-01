@@ -35,6 +35,9 @@ namespace SubtitleStudio
 		void OpenSubtitle(const std::string& path);
 		void OpenVideo(const std::string& path);
 
+		void CloseSubtitle();
+		void CloseVideo();
+
 		void SaveSubtitle(const std::string& path = "");
 
 		void PlayPause();

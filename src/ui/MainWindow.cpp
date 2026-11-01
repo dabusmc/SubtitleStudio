@@ -7,7 +7,7 @@
 
 namespace SubtitleStudio
 {
-    const std::string c_Title = "Subtitle Studio 0.5.1";
+    const std::string c_Title = "Subtitle Studio 0.5.2";
 
     MainWindow::MainWindow(Application& studioApp, QWidget* parent)
         : m_StudioApp(studioApp), QMainWindow(parent)
@@ -56,6 +56,18 @@ namespace SubtitleStudio
 
         // Separator
         fileMenu->addSeparator();
+
+        // Close Video
+        m_CloseVideo = new QAction("Close Video", this);
+        connect(m_CloseVideo, &QAction::triggered, this, &MainWindow::CloseVideo);
+        m_CloseVideo->setEnabled(false);
+        fileMenu->addAction(m_CloseVideo);
+
+        // Close Subtitle
+        m_CloseSubtitle = new QAction("Close Subtitle", this);
+        connect(m_CloseSubtitle, &QAction::triggered, this, &MainWindow::CloseSubtitle);
+        m_CloseSubtitle->setEnabled(false);
+        fileMenu->addAction(m_CloseSubtitle);
 
         // Exit
         m_Exit = new QAction("Exit", this);
@@ -133,6 +145,7 @@ namespace SubtitleStudio
         try
         {
             m_StudioApp.OpenSubtitle(filename.toStdString());
+            m_CloseSubtitle->setEnabled(true);
         }
         catch (const std::exception& e)
         {
@@ -154,11 +167,24 @@ namespace SubtitleStudio
         try
         {
             m_StudioApp.OpenVideo(filename.toStdString());
+            m_CloseVideo->setEnabled(true);
         }
         catch (const std::exception& e)
         {
             QMessageBox::critical(this, "Failed to Open Video", e.what());
         }
+    }
+
+    void MainWindow::CloseSubtitle()
+    {
+        m_StudioApp.CloseSubtitle();
+        m_CloseSubtitle->setEnabled(false);
+    }
+
+    void MainWindow::CloseVideo()
+    {
+        m_StudioApp.CloseVideo();
+        m_CloseVideo->setEnabled(false);
     }
 
     void MainWindow::SaveSubtitle()
