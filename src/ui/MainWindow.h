@@ -19,6 +19,10 @@ namespace SubtitleStudio
     public:
         explicit MainWindow(Application& studioApp, QWidget* parent = nullptr);
 
+    protected:
+        void keyPressEvent(QKeyEvent* event) override;
+        void keyReleaseEvent(QKeyEvent* event) override;
+
     private:
         void CreateMenus();
         void CreateDockWidgets();
@@ -26,6 +30,7 @@ namespace SubtitleStudio
 
     private:
         Application& m_StudioApp;
+        bool m_ShiftPressed = false;
 
         QDockWidget* m_SubtitleDock = nullptr;
         SubtitleEditorWidget* m_SubtitleEditor = nullptr;

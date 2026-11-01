@@ -23,10 +23,6 @@ TODO List (No Particular Order)
 # Saving the last opened folder when selecting a subtitle or video
 # Allowing users to drag + drop subtitles and video files
 # Fix weird display issue with ruler on timeline
-# Give the keyboard functionality
-	# Make the spacebar pause/play
-	# Make the left/right arrow keys rewind and fast-forward
-	# Make shift + left/right arrow keys go to previous and next subtitle
 # Customisation options for Subtitles display
 # Comments/Code Cleanup
 # License Comments at the top of Source Files

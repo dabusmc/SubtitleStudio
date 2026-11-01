@@ -7,7 +7,7 @@
 
 namespace SubtitleStudio
 {
-    const std::string c_Title = "Subtitle Studio 0.5.2";
+    const std::string c_Title = "Subtitle Studio 0.5.3";
 
     MainWindow::MainWindow(Application& studioApp, QWidget* parent)
         : m_StudioApp(studioApp), QMainWindow(parent)
@@ -22,6 +22,49 @@ namespace SubtitleStudio
         CreateMenus();
         CreateCentralWidget();
         CreateDockWidgets();
+    }
+
+    void MainWindow::keyPressEvent(QKeyEvent* event)
+    {
+        switch (event->key())
+        {
+        case Qt::Key_Space:
+            m_StudioApp.PlayPause();
+            break;
+        case Qt::Key_Left:
+            if (m_ShiftPressed)
+            {
+                m_StudioApp.PreviousSubtitleBoundary();
+            }
+            else
+            {
+                m_StudioApp.SeekRelative(-std::chrono::seconds(1));
+            }
+            break;
+        case Qt::Key_Right:
+            if (m_ShiftPressed)
+            {
+                m_StudioApp.NextSubtitleBoundary();
+            }
+            else
+            {
+                m_StudioApp.SeekRelative(std::chrono::seconds(1));
+            }
+            break;
+        case Qt::Key_Shift:
+            m_ShiftPressed = true;
+            break;
+        default:
+            break;
+        }
+    }
+
+    void MainWindow::keyReleaseEvent(QKeyEvent* event)
+    {
+        if (event->key() == Qt::Key_Shift)
+        {
+            m_ShiftPressed = false;
+        }
     }
 
     void MainWindow::CreateMenus()
